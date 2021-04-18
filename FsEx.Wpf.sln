@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31205.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FsEx.Wpf", "FsEx.Wpf.fsproj", "{C7E342B7-D8A7-4183-9074-17919E6730D6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C7E342B7-D8A7-4183-9074-17919E6730D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7E342B7-D8A7-4183-9074-17919E6730D6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1DC95303-2CC2-4E30-82DE-78FE03DD85A7}
+	EndGlobalSection
+EndGlobal
