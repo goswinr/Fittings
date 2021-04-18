@@ -26,16 +26,20 @@
   </PropertyGroup>
 
 
+  <ItemGroup>
+    <PackageReference Include="FsEx" Version="0.5.0" />
+  </ItemGroup>
 
-  <ItemGroup> 
-    <Compile Include="Src/Sync.fs" /> 
-    <Compile Include="Src\Brush.fs" /> 
-    <Compile Include="Src\Command.fs" /> 
-    <Compile Include="Src\INotifyProps.fs" />
-    <Compile Include="Src\DependencyProps.fs" />
+  <ItemGroup>
+    <Compile Include="Src/Sync.fs" />
+    <Compile Include="Src/Brush.fs" />
+    <Compile Include="Src/Command.fs" />
+    <Compile Include="Src/ViewModel.fs" />
     <Compile Include="Src/SaveWriter.fs" />
     <Compile Include="Src/Settings.fs" />
+    <Compile Include="Src/DependencyProps.fs" />
+    <Compile Include="Src\Sliders.fs" />
     <Compile Include="Src/Window.fs" />
-  </ItemGroup>   
+  </ItemGroup>
 
 </Project>
