@@ -45,15 +45,15 @@ module ViewModel =
     
         let toPropName(query : Expr) =  match query with PropertyGet(a, b, list) -> b.Name | _ -> ""
     
-        do   
+        do  
             try
-                // so that text fields that are bound to floats can have a dot too:
-                // https://stackoverflow.com/a/35942615/969070
-                // setting this fails when a hosting WPF process is alread up and running (eg loaded in Seff Ui therad)  
+                // so that wpf textboxes that are bound to floats can have a dot input too. see https://stackoverflow.com/a/35942615/969070
+                // setting this might fails when a hosting WPF process is alread up and running (eg loaded in another WPF thread ,for example in Seff UI therad)  
                 FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty <- false
-            with 
-                e -> () 
-            
+            with  _ -> ()
+                //if FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty then 
+                //    eprintfn "could not set KeepTextBoxDisplaySynchronizedWithTextProperty to false "
+                
             base.Source <- model
             base.Path <- new PropertyPath(toPropName(memberExpr) ) 
             base.UpdateSourceTrigger <- UpdateSourceTrigger.PropertyChanged 
