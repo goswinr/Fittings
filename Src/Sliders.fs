@@ -67,6 +67,9 @@ module Sliders =
         let mit     = TextBox(   MinWidth = 40.  ,  Margin = Thickness(3.)) 
         let mat     = TextBox(   MinWidth = 40.  ,  Margin = Thickness(3.)) 
    
+
+        mat.PreviewKeyDown.Add (fun a -> a.Key = Key.delete)
+
         header.Text <- label + ":"
         mit.Background <- Brush.make(245,  245,  245) 
         mat.Background <- Brush.make(245,  245,  245) 
