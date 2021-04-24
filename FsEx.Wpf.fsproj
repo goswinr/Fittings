@@ -25,10 +25,11 @@
     
   </PropertyGroup>
 
-
+  <!--
   <ItemGroup>
     <PackageReference Include="FsEx" Version="0.5.0" />
   </ItemGroup>
+  -->
 
   <ItemGroup>
     <Compile Include="Src/Sync.fs" />
