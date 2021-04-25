@@ -10,6 +10,27 @@ open System.ComponentModel
 
 module ViewModel =        
     
+    module Literals = 
+        
+        /// string for RhinoMath.UnsetValue -1.23432101234321e+308
+        [<Literal>]
+        let RhinoMathUnset = "RhinoMath.Unset" // for https://developer.rhino3d.com/api/RhinoCommon/html/F_Rhino_RhinoMath_UnsetValue.htm
+        
+        [<Literal>]
+        let PositiveInfinity = "∞"
+        
+        [<Literal>]
+        let NegativeInfinity = "-∞"
+        
+        [<Literal>]
+        let NaN = "NaN"
+
+        [<Literal>]
+        let AlmostZero = "~0.0"
+
+        [<Literal>]
+        let AlmostZeroNeg = "-~0.0"
+
 
     module NumberFormating = 
         
@@ -27,6 +48,7 @@ module ViewModel =
         /// set this to change the printing of floats larger than 10'000
         let mutable thousandSeparator = '\'' // = just one quote '
 
+        
 
         /// Assumes a string that represent a float or int with '.' as decimal serapator and no other input formating
         let addThousandSeparators (s:string) =
@@ -63,14 +85,15 @@ module ViewModel =
 
         let tryParseNiceFloat (s:string)=
             match s with 
-            |"NaN" -> None
-            |"Negative Infinity" -> None
-            |"Positive Infinity" -> None
-            |"-1.23432e+308 (=RhinoMath.UnsetValue)" -> Some 0.0 // for https://developer.rhino3d.com/api/RhinoCommon/html/F_Rhino_RhinoMath_UnsetValue.htm
-            |"~0.0" ->  Some 0.0
-            |"~-0.0"->  Some 0.0
+            |Literals.NaN -> None
+            |Literals.PositiveInfinity -> None
+            |Literals.NegativeInfinity-> None
+            |Literals.RhinoMathUnset -> Some 0.0 // for https://developer.rhino3d.com/api/RhinoCommon/html/F_Rhino_RhinoMath_UnsetValue.htm
+            |Literals.AlmostZero ->  Some 0.0
+            |Literals.AlmostZeroNeg->  Some 0.0
             | _ -> 
-                match Double.TryParse(s.Replace(string(thousandSeparator),""),NumberStyles.Float,invC) with 
+                let cleanFloat = s.Replace(string(thousandSeparator),"") // no need to take care of decimal comma here. nice string never has one
+                match Double.TryParse(cleanFloat, NumberStyles.Float, invC) with 
                 | true, v -> Some v
                 | _ -> None
         
@@ -84,30 +107,28 @@ module ViewModel =
         /// if the value is smaller than NiceStringSettings.roundToZeroBelow '0.0' will be shown.
         /// this is Double.Epsilon by default
         let float  (x:float) =
-            if   Double.IsNaN x then "NaN"
-            elif x = Double.NegativeInfinity then "Negative Infinity"
-            elif x = Double.PositiveInfinity then "Positive Infinity"
-            elif x = -1.23432101234321e+308 then "-1.23432e+308 (=RhinoMath.UnsetValue)" // for https://developer.rhino3d.com/api/RhinoCommon/html/F_Rhino_RhinoMath_UnsetValue.htm
+            if   Double.IsNaN x then Literals.NaN
+            elif x = Double.NegativeInfinity then Literals.NegativeInfinity
+            elif x = Double.PositiveInfinity then Literals.PositiveInfinity
+            elif x = -1.23432101234321e+308 then Literals.RhinoMathUnset // for https://developer.rhino3d.com/api/RhinoCommon/html/F_Rhino_RhinoMath_UnsetValue.htm
             elif x = 0.0 then "0" // not "0" as in sprintf "%g"
             else
-                let  a = abs x
-                if   a >= 1000.     then x.ToString("#")|> addThousandSeparators 
-                //if   a >= 10000.     then x.ToString("#")|> addThousandSeparators 
-                //elif a >= 1000.      then x.ToString("#")/// or 4 digits without separator ?
-                elif a >= 100.       then x.ToString("#.#" , invC)
-                elif a >= 10.        then x.ToString("#.##" , invC)
-                elif a >= 1.         then x.ToString("#.###" , invC)
-                //elif  a < roundToZeroBelow then "0.0"
-                elif a >= 0.1        then x.ToString("0.####" , invC)|> addThousandSeparators 
-                elif a >= 0.01       then x.ToString("0.#####" , invC)|> addThousandSeparators 
-                elif a >= 0.001      then x.ToString("0.######" , invC)|> addThousandSeparators 
-                elif a >= 0.0001     then x.ToString("0.#######" , invC)|> addThousandSeparators 
-                elif a >= 0.00001    then x.ToString("0.########" , invC)|> addThousandSeparators 
-                elif a >= 0.000001   then x.ToString("0.#########" , invC)|> addThousandSeparators 
-                elif a >= 0.0000001  then x.ToString("0.##########" , invC)|> addThousandSeparators 
-                elif a >= 0.000000000000001 then x.ToString("0.###############" , invC)|> addThousandSeparators // 15 decimal paces for doubles
-                elif x >= 0.0 then "~0.0"
-                else "~-0.0"
+                let  a = abs x                
+                if   a >= 10000.            then x.ToString("#"        ) |> addThousandSeparators 
+                elif a >= 1000.             then x.ToString("#.#", invC) |> addThousandSeparators 
+                elif a >= 100.              then x.ToString("#.##" , invC)
+                elif a >= 10.               then x.ToString("#.###" , invC)
+                elif a >= 1.                then x.ToString("#.####" , invC) //|> addThousandSeparators              
+                elif a >= 0.1               then x.ToString("0.#####" , invC) |> addThousandSeparators 
+                elif a >= 0.01              then x.ToString("0.######" , invC) |> addThousandSeparators 
+                elif a >= 0.001             then x.ToString("0.#######" , invC) |> addThousandSeparators 
+                elif a >= 0.0001            then x.ToString("0.########" , invC) |> addThousandSeparators 
+                elif a >= 0.00001           then x.ToString("0.#########" , invC) |> addThousandSeparators 
+                elif a >= 0.000001          then x.ToString("0.##########" , invC) |> addThousandSeparators 
+                elif a >= 0.0000001         then x.ToString("0.###########" , invC) |> addThousandSeparators 
+                elif a >= 0.000000000000001 then x.ToString("0.###############" , invC) |> addThousandSeparators // 15 decimal paces for doubles
+                elif x >= 0.0 then Literals.AlmostZero
+                else Literals.AlmostZeroNeg
                
 
 
@@ -175,8 +196,9 @@ module ViewModel =
                         //| _ -> printfn "convert BACK Other to %s:%A" targetType.Name value                     
                         if targetType = typeof<Double> then 
                             match value with 
-                            | :? string as str ->  
-                                match NumberFormating.tryParseNiceFloat str with                                 
+                            | :? string as str -> 
+                                let strEn = str.Replace( ",", ".") // to allow german formating too, also done in  TextBoxForSepChar TextChanged event          
+                                match NumberFormating.tryParseNiceFloat strEn with                      
                                 |Some v -> v :> obj
                                 |None   -> null
                             | _ -> value
