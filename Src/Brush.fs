@@ -29,7 +29,7 @@ module Brush =
   let inline freeze(br:SolidColorBrush)= 
       if not br.IsFrozen then
           if br.CanFreeze then br.Freeze()
-          else                 eprintfn "Could not freeze SolidColorBrush: %A" br         
+          //else                 eprintfn "Could not freeze SolidColorBrush: %A" br         
       br
   
   /// Returns a frozen SolidColorBrush

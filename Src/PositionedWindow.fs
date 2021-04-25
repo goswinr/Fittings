@@ -62,15 +62,15 @@ type PositionedWindow (appName) as this =
             base.Width <-   winWidth
 
             if  winTop  < -offTolerance || winHeight + winTop  > maxH then 
-                eprintfn "Could not restore previous Window position:"
-                eprintfn "winTopPosition: %.1f  + winHeight: %.1f  = %.1f that is bigger than maxH: %.1f + %.1f tolerance" winTop winHeight   ( winHeight + winTop ) SystemParameters.VirtualScreenHeight offTolerance
+                eprintfn "FsEx.PositionedWindow:Could not restore previous Window position:"
+                eprintfn "FsEx.PositionedWindow: winTopPosition: %.1f  + winHeight: %.1f  = %.1f that is bigger than maxH: %.1f + %.1f tolerance" winTop winHeight   ( winHeight + winTop ) SystemParameters.VirtualScreenHeight offTolerance
                 base.WindowStartupLocation <- WindowStartupLocation.CenterScreen                
                 base.Height <- 600.0                
                 base.Width  <- 600.0
 
             if winLeft < -offTolerance || winWidth  + winLeft > maxW then
-                eprintfn "Could not restore previous Window position:"
-                eprintfn "winLeftPosition: %.1f  + winWidth: %.1f = %.1f that is bigger than maxW: %.1f + %.1f tolerance" winLeft winWidth ( winWidth +  winLeft) SystemParameters.VirtualScreenWidth offTolerance
+                eprintfn "FsEx.PositionedWindow: Could not restore previous Window position:"
+                eprintfn "FsEx.PositionedWindow: winLeftPosition: %.1f  + winWidth: %.1f = %.1f that is bigger than maxW: %.1f + %.1f tolerance" winLeft winWidth ( winWidth +  winLeft) SystemParameters.VirtualScreenWidth offTolerance
                 base.WindowStartupLocation <- WindowStartupLocation.CenterScreen
                 base.Height <- 600.0                
                 base.Width  <- 600.0
@@ -111,7 +111,7 @@ type PositionedWindow (appName) as this =
             |WindowState.Minimized ->                 
                 isMinOrMax  <- true
             |wch -> 
-                eprintfn "unknown WindowState State change=%A" wch
+                eprintfn "FsEx.PositionedWindow: unknown WindowState State change=%A" wch
                 isMinOrMax  <- true
             )
 
@@ -122,10 +122,7 @@ type PositionedWindow (appName) as this =
                 settings.Save ()                
             )
    
-    
-    //indicating if the Window is in Fullscreen mode
-    //member this.IsMinOrMax = isMinOrMax
-    
+   
     /// Get or Set the native Window Handle that owns this window. 
     /// Use if this Window is hosted in another native app  (via IntPtr).
     /// So that this window opens and closes at the same time as the main host window.
