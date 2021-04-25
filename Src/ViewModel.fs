@@ -8,7 +8,23 @@ open System.Globalization
 open System.ComponentModel
 
 
-module ViewModel =        
+module ViewModel =  
+
+      /// A base class for a viewmodel implementing INotifyPropertyChanged
+    type ViewModelBase() = 
+        // alternative: http://www.fssnip.net/4Q/title/F-Quotations-with-INotifyPropertyChanged
+        let ev = new Event<_, _>()
+    
+        interface INotifyPropertyChanged with
+            [<CLIEvent>]
+            member x.PropertyChanged = ev.Publish
+
+        /// use nameof operator on members to provide the string reqired 
+        /// member x.Val
+        ///    with get()  = val
+        ///    and set(v)  = val <- v; x.OnPropertyChanged(nameof x.Val)
+        member x.OnPropertyChanged(propertyName : string) = 
+            ev.Trigger(x, new PropertyChangedEventArgs(propertyName))  
     
     module Literals = 
         
@@ -129,25 +145,7 @@ module ViewModel =
                 elif a >= 0.000000000000001 then x.ToString("0.###############" , invC) |> addThousandSeparators // 15 decimal paces for doubles
                 elif x >= 0.0 then Literals.AlmostZero
                 else Literals.AlmostZeroNeg
-               
-
-
-    /// A base class for a viewmodel implementing INotifyPropertyChanged
-    type ViewModelBase() = 
-        // alternative: http://www.fssnip.net/4Q/title/F-Quotations-with-INotifyPropertyChanged
-        let ev = new Event<_, _>()
-    
-        interface INotifyPropertyChanged with
-            [<CLIEvent>]
-            member x.PropertyChanged = ev.Publish
-
-        /// use nameof operator on members to provide the string reqired 
-        /// member x.Val
-        ///    with get()  = val
-        ///    and set(v)  = val <- v; x.OnPropertyChanged(nameof x.Val)
-        member x.OnPropertyChanged(propertyName : string) = 
-            ev.Trigger(x, new PropertyChangedEventArgs(propertyName))
-
+     
 
     /// A binding that uses variable custom float formating  for diplaying floats
     /// includes thousand separators in Binding converter
@@ -167,7 +165,7 @@ module ViewModel =
                 
             base.Source <- viewMmodel
             base.Path <- new PropertyPath(propertyName) 
-            base.Mode <- BindingMode.TwoWay     
+            base.Mode <- BindingMode.TwoWay 
             base.UpdateSourceTrigger <- UpdateSourceTrigger.Explicit // the requires explicit events on UIControls ( not UpdateSourceTrigger.PropertyChanged  )
                         
             //base.StringFormat <- "0.##" 
@@ -199,9 +197,9 @@ module ViewModel =
                             | :? string as str -> 
                                 let strEn = str.Replace( ",", ".") // to allow german formating too, also done in  TextBoxForSepChar TextChanged event          
                                 match NumberFormating.tryParseNiceFloat strEn with                      
-                                |Some v -> v :> obj
-                                |None   -> null
-                            | _ -> value
+                                |Some v ->v :> obj
+                                |None   ->  null
+                            | _ ->  value
                         else 
                             value
                         }

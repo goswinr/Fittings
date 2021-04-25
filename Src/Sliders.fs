@@ -26,6 +26,7 @@ module Sliders =
         let mutable minVal = minVal
         let mutable maxVal = maxVal
         let mutable currentVal = initalVal 
+        //let currentVal = ref initalVal 
     
         member x.MinVal
             with get()  = minVal
@@ -43,7 +44,10 @@ module Sliders =
             with get()  = currentVal
             and set(v0) =   
                 let v = if snapToInt then round (v0)  else v0
-                if v<>currentVal then currentVal <- v; x.OnPropertyChanged(nameof x.CurrentValue); changed.Trigger(v) 
+                if v <> currentVal then 
+                    currentVal <- v
+                    x.OnPropertyChanged(nameof x.CurrentValue) 
+                    changed.Trigger(v) 
         
         member val MinValBinding        = FormatedFloatBinding(x, nameof x.MinVal, snapToInt) 
         member val MaxValBinding        = FormatedFloatBinding(x, nameof x.MaxVal, snapToInt)
@@ -174,7 +178,8 @@ module Sliders =
         mat.Background <- Brush.make(245,  245,  245)
     
         slider.Background <- Brush.make(255,  255,  255) 
-        slider.Delay <- 50  
+        slider.Delay <- 20  
+        
         if sliderVM.SnapToInteger then 
             slider.IsSnapToTickEnabled <-true
             slider.TickFrequency <- 1.0

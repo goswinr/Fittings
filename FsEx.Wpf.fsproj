@@ -33,14 +33,14 @@
 
   <ItemGroup>
     <Compile Include="Src/Sync.fs" />
+    <Compile Include="Src/SaveWriter.fs" />
+    <Compile Include="Src/Settings.fs" />
     <Compile Include="Src/Brush.fs" />
     <Compile Include="Src/Command.fs" />
     <Compile Include="Src/ViewModel.fs" />
-    <Compile Include="Src/SaveWriter.fs" />
-    <Compile Include="Src/Settings.fs" />
-    <Compile Include="Src/DependencyProps.fs" />
     <Compile Include="Src\Sliders.fs" />
-    <Compile Include="Src/Window.fs" />
+    <Compile Include="Src/DependencyProps.fs" />
+    <Compile Include="Src\PositionedWindow.fs" />
   </ItemGroup>
 
 </Project>

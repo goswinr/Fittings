@@ -5,21 +5,33 @@ open System.Windows
 
 
 /// A class holding a resizable Window that remebers its position even after restart
-/// The appname will be used to save settings.txt file in User's Appdata folder
-type PositionedWindow (appName:string) as this = 
+/// The appName in constructor will be used as Title and to save settings.txt file in User's Appdata folder
+type PositionedWindow (appName) as this = 
     inherit Windows.Window() 
-        
-    let settings = Settings(appName)
+
+    let appFileName = 
+        if String.IsNullOrWhiteSpace appName then "Unnamed FsEX PositionedWindow"
+        else 
+            let sb = new Text.StringBuilder()
+            for c in appName.Trim() do // make a valid file name, not allowed < > : " / \ | ? *
+                if (c >= '0' && c <= '9') 
+                || (c >= 'A' && c <= 'Z') 
+                || (c >= 'a' && c <= 'z') 
+                ||  c = '.'  ||  c = '_'   ||  c = ' ' ||  c = '-' ||  c = '!' 
+                ||  c = '&'  ||  c = '='
+                ||  c = '+'  ||  c = '('   ||  c = ')' ||  c = '[' ||  c = ']'  then  sb.Append(c) |> ignore
+            sb.ToString()
+    
+    let settings = Settings(appFileName)
 
     /// the owning window
     let owner = IntPtr.Zero
-
-    //let win = new Windows.Window()    
+ 
 
     let mutable isMinOrMax = false     
     
     do       
-        base.Title <- appName
+        if String.IsNullOrWhiteSpace appName then base.Title <- appName
         base.ResizeMode  <- ResizeMode.CanResize  
               
         //-------------------------------------------------------------------------
