@@ -9,9 +9,8 @@ open FsEx
 
 open System.Collections.ObjectModel
 open System.ComponentModel
-open Microsoft.FSharp
-open Microsoft.FSharp.Quotations
-open Microsoft.FSharp.Quotations.Patterns
+open System.Windows.Input
+
 
 module Sliders = 
 
@@ -30,23 +29,23 @@ module Sliders =
             with get()  = minVal
             and set(v0) =   
                 let v = if snapToInt then round (v0)  else v0
-                if v<>minVal then  minVal <- v; x.OnPropertyChanged(<@ x.MinVal @>)
+                if v<>minVal then  minVal <- v; x.OnPropertyChanged(nameof x.MinVal)
         
          member x.MaxVal
             with get()  = maxVal
             and set(v0) =   
                 let v = if snapToInt then round (v0)  else v0
-                if v<>maxVal then maxVal <- v; x.OnPropertyChanged(<@ x.MaxVal @>)     
+                if v<>maxVal then maxVal <- v; x.OnPropertyChanged(nameof x.MaxVal)     
 
         member x.CurrentValue
             with get()  = currentVal
             and set(v0) =   
                 let v = if snapToInt then round (v0)  else v0
-                if v<>currentVal then currentVal <- v; x.OnPropertyChanged(<@ x.CurrentValue @>); changed.Trigger(v) 
+                if v<>currentVal then currentVal <- v; x.OnPropertyChanged(nameof x.CurrentValue); changed.Trigger(v) 
         
-        member val MinValBinding        = BindingTwoWay(x, <@ x.MinVal @>, snapToInt) 
-        member val MaxValBinding        = BindingTwoWay(x, <@ x.MaxVal @>, snapToInt)
-        member val CurrentValueBinding  = BindingTwoWay(x, <@ x.CurrentValue @>, snapToInt)
+        member val MinValBinding        = FormatedFloatBinding(x, nameof x.MinVal, snapToInt) 
+        member val MaxValBinding        = FormatedFloatBinding(x, nameof x.MaxVal, snapToInt)
+        member val CurrentValueBinding  = FormatedFloatBinding(x, nameof x.CurrentValue , snapToInt)
     
         member val SnapToInteger = snapToInt
     
@@ -54,7 +53,35 @@ module Sliders =
         [<CLIEvent>]
         member x.Changed = changed.Publish
     
-    
+    /// a text box that handels delet correctlt for thousand seperator character
+    /// Inset in controlled by converter in binding 
+    type TextBoxForSepChar() as this  = 
+        inherit TextBox()
+        do 
+            this.PreviewKeyDown.Add (fun a -> 
+                if a.Key = Key.Delete then 
+                    let t = this.Text
+                    let i = this.CaretIndex
+                    if t.Length > i+1 then // 2 chars left minimum
+                        if t.[i] = NumberFormating.thousandSeparator then 
+                            a.Handled<-true
+                            let start = if i=0 then "" else t.[.. i-1 ]
+                            let ende  = if i = t.Length-2 then "" else t.[i+2 ..]
+                            this.Text <- start + ende
+                            this.CaretIndex <- i
+                    
+                elif a.Key = Key.Back then 
+                    let t = this.Text
+                    let i = this.CaretIndex
+                    if i>1 then // 2 chars left minimum
+                        if t.[i-1] = NumberFormating.thousandSeparator then 
+                            a.Handled<-true
+                            let start = if i=2 then "" else t.[.. i-3 ]
+                            let ende  = if i = t.Length then "" else t.[i ..]
+                            this.Text <- start + ende
+                            this.CaretIndex <- i-2
+                )
+
 
     open DependencyProps
     
@@ -63,13 +90,10 @@ module Sliders =
     let makeSliderPanel(label:string, sliderVM:SliderViewModel) :DockPanel= 
         // make view
         let header  = TextBlock( MinWidth = 100. ,  Margin = Thickness(3.),  TextAlignment=TextAlignment.Right )
-        let curt    = TextBox(   MinWidth = 60.  ,  Margin = Thickness(6. , 3. , 6. , 3.)) 
-        let mit     = TextBox(   MinWidth = 40.  ,  Margin = Thickness(3.)) 
-        let mat     = TextBox(   MinWidth = 40.  ,  Margin = Thickness(3.)) 
+        let curt    = TextBoxForSepChar(   MinWidth = 60.  ,  Margin = Thickness(6. , 3. , 6. , 3.)) 
+        let mit     = TextBoxForSepChar(   MinWidth = 40.  ,  Margin = Thickness(3.)) 
+        let mat     = TextBoxForSepChar(   MinWidth = 40.  ,  Margin = Thickness(3.)) 
    
-
-        mat.PreviewKeyDown.Add (fun a -> a.Key = Key.delete)
-
         header.Text <- label + ":"
         mit.Background <- Brush.make(245,  245,  245) 
         mat.Background <- Brush.make(245,  245,  245) 

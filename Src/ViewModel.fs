@@ -4,16 +4,9 @@
 open System
 open System.Windows
 open System.Windows.Data
-open System.Windows.Controls
 open System.Globalization
-open FsEx
-
-
-open System.Collections.ObjectModel
 open System.ComponentModel
-open Microsoft.FSharp
-open Microsoft.FSharp.Quotations
-open Microsoft.FSharp.Quotations.Patterns
+
 
 module ViewModel =        
     
@@ -41,7 +34,7 @@ module ViewModel =
             let inline add (c:char) = b.Append(c) |> ignore
         
             let inline doBeforeComma st en =         
-                for i=st to en-1 do // dont go to last one becaus it shal never get a separator 
+                for i=st to en-1 do // dont go to last one becaus it shall never get a separator 
                     let rest = en-i            
                     add s.[i]
                     if rest % 3 = 0 then add thousandSeparator
@@ -99,7 +92,7 @@ module ViewModel =
             else
                 let  a = abs x
                 if   a > 10000.     then x.ToString("#")|> addThousandSeparators 
-                elif a > 1000.      then x.ToString("#")
+                elif a > 1000.      then x.ToString("#")|> addThousandSeparators 
                 elif a > 100.       then x.ToString("#.#" , invC)
                 elif a > 10.        then x.ToString("#.##" , invC)
                 elif a > 1.         then x.ToString("#.###" , invC)
@@ -124,27 +117,19 @@ module ViewModel =
         // http://www.fssnip.net/4Q/title/F-Quotations-with-INotifyPropertyChanged
         let propertyChanged = new Event<_, _>()
     
-        let toPropName(query : Expr) =  match query with PropertyGet(a, b, list) -> b.Name | _ -> ""
-
         interface INotifyPropertyChanged with
             [<CLIEvent>]
             member x.PropertyChanged = propertyChanged.Publish
 
-        abstract member OnPropertyChanged: string -> unit // needed ?
-    
-        default x.OnPropertyChanged(propertyName : string) = // needed ?
+        
+        member x.OnPropertyChanged(propertyName : string) = 
             propertyChanged.Trigger(x, new PropertyChangedEventArgs(propertyName))
 
-        member x.OnPropertyChanged(expr : Expr) =
-            let propName = toPropName(expr)
-            x.OnPropertyChanged(propName)
 
-
-    /// uses float.ToNiceString from FsEx for diplaying floats 
-    type BindingTwoWay(model:INotifyPropertyChanged, memberExpr:Expr, snapToInt:bool) = 
+    /// uses float.ToNiceString from FsEx for diplaying floats
+    /// includes thousand separators in Binding converter
+    type FormatedFloatBinding (model:INotifyPropertyChanged, propertyName : string, snapToInt:bool) = 
         inherit Binding() 
-    
-        let toPropName(query : Expr) =  match query with PropertyGet(a, b, list) -> b.Name | _ -> ""
     
         do  
             try
@@ -156,7 +141,7 @@ module ViewModel =
                 //    eprintfn "could not set KeepTextBoxDisplaySynchronizedWithTextProperty to false "
                 
             base.Source <- model
-            base.Path <- new PropertyPath(toPropName(memberExpr) ) 
+            base.Path <- new PropertyPath(propertyName) 
             base.UpdateSourceTrigger <- UpdateSourceTrigger.PropertyChanged 
             base.Mode <- BindingMode.TwoWay
             //base.StringFormat <- "0.##" 
