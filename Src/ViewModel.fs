@@ -88,67 +88,72 @@ module ViewModel =
             elif x = Double.NegativeInfinity then "Negative Infinity"
             elif x = Double.PositiveInfinity then "Positive Infinity"
             elif x = -1.23432101234321e+308 then "-1.23432e+308 (=RhinoMath.UnsetValue)" // for https://developer.rhino3d.com/api/RhinoCommon/html/F_Rhino_RhinoMath_UnsetValue.htm
-            elif x = 0.0 then "0.0" // not "0" as in sprintf "%g"
+            elif x = 0.0 then "0" // not "0" as in sprintf "%g"
             else
                 let  a = abs x
-                if   a > 10000.     then x.ToString("#")|> addThousandSeparators 
-                elif a > 1000.      then x.ToString("#")|> addThousandSeparators 
-                elif a > 100.       then x.ToString("#.#" , invC)
-                elif a > 10.        then x.ToString("#.##" , invC)
-                elif a > 1.         then x.ToString("#.###" , invC)
-                //elif   a < roundToZeroBelow then "0.0"
-                elif a > 0.1        then x.ToString("0.####" , invC)|> addThousandSeparators 
-                elif a > 0.01       then x.ToString("0.#####" , invC)|> addThousandSeparators 
-                elif a > 0.001      then x.ToString("0.######" , invC)|> addThousandSeparators 
-                elif a > 0.0001     then x.ToString("0.#######" , invC)|> addThousandSeparators 
-                elif a > 0.00001    then x.ToString("0.########" , invC)|> addThousandSeparators 
-                elif a > 0.000001   then x.ToString("0.#########" , invC)|> addThousandSeparators 
-                elif a > 0.0000001  then x.ToString("0.##########" , invC)|> addThousandSeparators 
-                elif a > 0.000000000000001 then x.ToString("0.###############" , invC)|> addThousandSeparators // 15 decimal paces for doubles
-                elif x > 0.0 then "~0.0"
+                if   a >= 1000.     then x.ToString("#")|> addThousandSeparators 
+                //if   a >= 10000.     then x.ToString("#")|> addThousandSeparators 
+                //elif a >= 1000.      then x.ToString("#")/// or 4 digits without separator ?
+                elif a >= 100.       then x.ToString("#.#" , invC)
+                elif a >= 10.        then x.ToString("#.##" , invC)
+                elif a >= 1.         then x.ToString("#.###" , invC)
+                //elif  a < roundToZeroBelow then "0.0"
+                elif a >= 0.1        then x.ToString("0.####" , invC)|> addThousandSeparators 
+                elif a >= 0.01       then x.ToString("0.#####" , invC)|> addThousandSeparators 
+                elif a >= 0.001      then x.ToString("0.######" , invC)|> addThousandSeparators 
+                elif a >= 0.0001     then x.ToString("0.#######" , invC)|> addThousandSeparators 
+                elif a >= 0.00001    then x.ToString("0.########" , invC)|> addThousandSeparators 
+                elif a >= 0.000001   then x.ToString("0.#########" , invC)|> addThousandSeparators 
+                elif a >= 0.0000001  then x.ToString("0.##########" , invC)|> addThousandSeparators 
+                elif a >= 0.000000000000001 then x.ToString("0.###############" , invC)|> addThousandSeparators // 15 decimal paces for doubles
+                elif x >= 0.0 then "~0.0"
                 else "~-0.0"
                
 
 
-
+    /// A base class for a viewmodel implementing INotifyPropertyChanged
     type ViewModelBase() = 
-    
-        //using quotations to avoid unsafe strings
-        // http://www.fssnip.net/4Q/title/F-Quotations-with-INotifyPropertyChanged
-        let propertyChanged = new Event<_, _>()
+        // alternative: http://www.fssnip.net/4Q/title/F-Quotations-with-INotifyPropertyChanged
+        let ev = new Event<_, _>()
     
         interface INotifyPropertyChanged with
             [<CLIEvent>]
-            member x.PropertyChanged = propertyChanged.Publish
+            member x.PropertyChanged = ev.Publish
 
-        
+        /// use nameof operator on members to provide the string reqired 
+        /// member x.Val
+        ///    with get()  = val
+        ///    and set(v)  = val <- v; x.OnPropertyChanged(nameof x.Val)
         member x.OnPropertyChanged(propertyName : string) = 
-            propertyChanged.Trigger(x, new PropertyChangedEventArgs(propertyName))
+            ev.Trigger(x, new PropertyChangedEventArgs(propertyName))
 
 
     /// uses float.ToNiceString from FsEx for diplaying floats
     /// includes thousand separators in Binding converter
+    /// uses UpdateSourceTrigger.Explicit so update thsese bindings explicitly
     type FormatedFloatBinding (model:INotifyPropertyChanged, propertyName : string, snapToInt:bool) = 
         inherit Binding() 
     
         do  
-            try
-                // so that wpf textboxes that are bound to floats can have a dot input too. see https://stackoverflow.com/a/35942615/969070
-                // setting this might fails when a hosting WPF process is alread up and running (eg loaded in another WPF thread ,for example in Seff UI therad)  
-                FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty <- false
-            with  _ -> ()
-                //if FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty then 
-                //    eprintfn "could not set KeepTextBoxDisplaySynchronizedWithTextProperty to false "
+            // this and other case ar handele explicitly in Textbox.TextChanged. event
+            //try
+            //    // So that wpf textboxes that are bound to floats can have a dot input too. see https://stackoverflow.com/a/35942615/969070
+            //    // setting this might fails when a hosting WPF process is alread up and running (eg loaded in another WPF thread ,for example in Seff UI therad)  
+            //    FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty <- false
+            //with  _ -> ()
+            //    //if FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty then 
+            //    //    eprintfn "could not set KeepTextBoxDisplaySynchronizedWithTextProperty to false "
                 
             base.Source <- model
             base.Path <- new PropertyPath(propertyName) 
-            base.UpdateSourceTrigger <- UpdateSourceTrigger.PropertyChanged 
-            base.Mode <- BindingMode.TwoWay
+            base.Mode <- BindingMode.TwoWay     
+            base.UpdateSourceTrigger <- UpdateSourceTrigger.Explicit // the requires explicit events on UIControls ( not UpdateSourceTrigger.PropertyChanged  )
+                        
             //base.StringFormat <- "0.##" 
-            //base.StringFormat <- "N2" //always show two digits behind comma
+            
             base.Converter <-
                 {new IValueConverter with 
-                    member  this.Convert(value:obj,  targetType:Type, parameter:obj,  culture:CultureInfo) =  
+                    member  _.Convert(value:obj,  targetType:Type, parameter:obj,  culture:CultureInfo) =  
                         //match value with 
                         //| :? string -> printfn "convert string to %s:%A" targetType.Name value
                         //| :? float -> printfn "convert float to %s:%A" targetType.Name value
@@ -163,7 +168,7 @@ module ViewModel =
                         else 
                             value
                     
-                    member this. ConvertBack(value:obj,  targetType:Type, parameter:obj,  culture:CultureInfo) = 
+                    member _.ConvertBack(value:obj,  targetType:Type, parameter:obj,  culture:CultureInfo) = 
                         //match value with 
                         //| :? string -> printfn "convert BACK string to %s:%A" targetType.Name value
                         //| :? float -> printfn "convert BACK float to %s:%A" targetType.Name value

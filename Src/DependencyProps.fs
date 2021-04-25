@@ -44,8 +44,7 @@ module DependencyProps =
 
     let makeGridLength len = new GridLength(len, GridUnitType.Star)
 
-    /// add a element to a UIElementCollection
-    let inline add (el:#UIElement) (parent:UIElementCollection) = parent.Add el  |> ignore ; parent
+    
 
     let makeMenu (xss:list<MenuItem*list<Control>>)=
         let menu = new Menu()
