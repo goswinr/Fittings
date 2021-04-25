@@ -149,10 +149,10 @@ module ViewModel =
             ev.Trigger(x, new PropertyChangedEventArgs(propertyName))
 
 
-    /// uses float.ToNiceString from FsEx for diplaying floats
+    /// A binding that uses variable custom float formating  for diplaying floats
     /// includes thousand separators in Binding converter
     /// uses UpdateSourceTrigger.Explicit so update thsese bindings explicitly
-    type FormatedFloatBinding (model:INotifyPropertyChanged, propertyName : string, snapToInt:bool) = 
+    type FormatedFloatBinding (viewMmodel:INotifyPropertyChanged, propertyName : string, snapToInt:bool) = 
         inherit Binding() 
     
         do  
@@ -165,7 +165,7 @@ module ViewModel =
             //    //if FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty then 
             //    //    eprintfn "could not set KeepTextBoxDisplaySynchronizedWithTextProperty to false "
                 
-            base.Source <- model
+            base.Source <- viewMmodel
             base.Path <- new PropertyPath(propertyName) 
             base.Mode <- BindingMode.TwoWay     
             base.UpdateSourceTrigger <- UpdateSourceTrigger.Explicit // the requires explicit events on UIControls ( not UpdateSourceTrigger.PropertyChanged  )
