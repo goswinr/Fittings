@@ -4,8 +4,8 @@ open System
 open System.Windows
 
 
-/// A class holding a resizable Window that remebers its position even after restart
-/// The appName in constructor will be used as Title and to save settings.txt file in User's Appdata folder
+/// A class holding a resizable Window that remebers its position even after restarting.
+/// The appName in constructor will be used as Title and to save a settings.txt file in User's Appdata folder
 type PositionedWindow (appName) as this = 
     inherit Windows.Window() 
 
@@ -31,7 +31,7 @@ type PositionedWindow (appName) as this =
     let mutable isMinOrMax = false     
     
     do       
-        if String.IsNullOrWhiteSpace appName then base.Title <- appName
+        if not (String.IsNullOrWhiteSpace appName) then base.Title <- appName
         base.ResizeMode  <- ResizeMode.CanResize  
               
         //-------------------------------------------------------------------------
@@ -48,8 +48,8 @@ type PositionedWindow (appName) as this =
             let winHeight = settings.GetFloat "WindowHeight" 800.0
             let winWidth  = settings.GetFloat "WindowWidth"  800.0
 
-            //let maxW = float <| Array.sumBy (fun (sc:Forms.Screen) -> sc.WorkingArea.Width)  Forms.Screen.AllScreens  // neded for dual screens ?, needs wins.forms
-            //let maxH = float <| Array.sumBy (fun (sc:Forms.Screen) -> sc.WorkingArea.Height) Forms.Screen.AllScreens //https://stackoverflow.com/questions/37927011/in-wpf-how-to-shift-a-win-onto-the-screen-if-it-is-off-the-screen/37927012#37927012
+            //let maxW = float <| Array.sumBy (fun (sc:Forms.Screen) -> sc.WorkingArea.Width)  Forms.Screen.AllScreens  // needed for dual screens ?, needs wins.forms
+            //let maxH = float <| Array.sumBy (fun (sc:Forms.Screen) -> sc.WorkingArea.Height) Forms.Screen.AllScreens // https://stackoverflow.com/questions/37927011/in-wpf-how-to-shift-a-win-onto-the-screen-if-it-is-off-the-screen/37927012#37927012
             
             let offTolerance = 25.0 // beeing 20 pixel off screen is still good enough for beeing on screen and beeing draggable
 
