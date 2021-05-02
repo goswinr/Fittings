@@ -118,7 +118,7 @@ module FormatedFloats =
                 elif a >= 1000.             then x.ToString("#.#", invC) |> addThousandSeparators 
                 elif a >= 100.              then x.ToString("#.##" , invC)
                 elif a >= 10.               then x.ToString("#.###" , invC)
-                elif a >= 1.                then x.ToString("#.####" , invC) //|> addThousandSeparators              
+                elif a >= 1.                then x.ToString("#.####" , invC) |> addThousandSeparators              
                 elif a >= 0.1               then x.ToString("0.#####" , invC) |> addThousandSeparators 
                 elif a >= 0.01              then x.ToString("0.######" , invC) |> addThousandSeparators 
                 elif a >= 0.001             then x.ToString("0.#######" , invC) |> addThousandSeparators 
@@ -129,6 +129,31 @@ module FormatedFloats =
                 elif a >= 0.000000000000001 then x.ToString("0.###############" , invC) |> addThousandSeparators // 15 decimal paces for doubles
                 elif x >= 0.0 then Literals.AlmostZero
                 else Literals.AlmostZeroNeg
+        
+        /// used for fotramting tooltip with AutoToolTipPrecision
+        let getPrecision (x:float) =
+            if   Double.IsNaN x then 0
+            elif x = Double.NegativeInfinity then 0
+            elif x = Double.PositiveInfinity then 0
+            elif x = -1.23432101234321e+308 then 0 // for https://developer.rhino3d.com/api/RhinoCommon/html/F_Rhino_RhinoMath_UnsetValue.htm
+            elif x = 0.0 then 1
+            else
+                let  a = abs x                
+                if   a >= 10000.            then 0
+                elif a >= 1000.             then 1
+                elif a >= 100.              then 2
+                elif a >= 10.               then 3
+                elif a >= 1.                then 4
+                elif a >= 0.1               then 5
+                elif a >= 0.01              then 6
+                elif a >= 0.001             then 7
+                elif a >= 0.0001            then 8
+                elif a >= 0.00001           then 9
+                elif a >= 0.000001          then 10
+                elif a >= 0.0000001         then 11
+                elif a >= 0.000000000000001 then 15
+                elif x >= 0.0 then 2
+                else 2
 
     /// A text box for Numbers formated with NumberFormating.thousandSeparator via FormatedFloatBinding
     /// Handles deleting correctly to remove number and separator at once if appropiate.
@@ -287,4 +312,5 @@ module FormatedFloats =
                         else 
                             value
                         }
+      
             

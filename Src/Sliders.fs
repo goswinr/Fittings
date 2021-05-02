@@ -19,7 +19,7 @@ module Sliders =
 
     /// A View model for a slider control
     /// Includes a changed event if value changes
-    type SliderViewModel (minVal:float, maxVal:float, initalVal:float,  snapToInt) as x = 
+    type SliderViewModel (minVal:float, maxVal:float, initalVal:float,  snapToInt) as this = 
         inherit ViewModelBase()
     
         let changed = new Event<float>()        
@@ -31,50 +31,50 @@ module Sliders =
         let mutable currentVal = initalVal 
         //let currentVal = ref initalVal 
     
-        member x.MinVal
+        member this.MinVal
             with get()  = minVal
             and set(v0) =   
                 let v = if snapToInt then round (v0)  else v0
                 if v<>minVal then  
                     minVal <- v
-                    x.OnPropertyChanged(nameof x.MinVal)
+                    this.OnPropertyChanged(nameof this.MinVal)
                     minChanged.Trigger(v) 
         
-         member x.MaxVal
+         member this.MaxVal
             with get()  = maxVal
             and set(v0) =   
                 let v = if snapToInt then round (v0)  else v0
                 if v<>maxVal then 
                     maxVal <- v
-                    x.OnPropertyChanged(nameof x.MaxVal)     
+                    this.OnPropertyChanged(nameof this.MaxVal)     
                     maxChanged.Trigger(v) 
 
-        member x.CurrentValue
+        member this.CurrentValue
             with get()  = currentVal
             and set(v0) =   
                 let v = if snapToInt then round (v0)  else v0
                 if v <> currentVal then 
                     currentVal <- v
-                    x.OnPropertyChanged(nameof x.CurrentValue) 
+                    this.OnPropertyChanged(nameof this.CurrentValue) 
                     changed.Trigger(v) 
         
-        member val MinValBinding        = FormatedFloatBinding(x, nameof x.MinVal, snapToInt) 
-        member val MaxValBinding        = FormatedFloatBinding(x, nameof x.MaxVal, snapToInt)
-        member val CurrentValueBinding  = FormatedFloatBinding(x, nameof x.CurrentValue , snapToInt)
+        member val MinValBinding        = FormatedFloatBinding(this, nameof this.MinVal, snapToInt) 
+        member val MaxValBinding        = FormatedFloatBinding(this, nameof this.MaxVal, snapToInt)
+        member val CurrentValueBinding  = FormatedFloatBinding(this, nameof this.CurrentValue , snapToInt)
     
         member val SnapToInteger = snapToInt
     
         /// reports the new value of the sliders cursor
         [<CLIEvent>]
-        member x.Changed = changed.Publish
+        member _.Changed = changed.Publish
         
         /// slider minValue changed
         [<CLIEvent>]
-        member x.MinChanged = minChanged.Publish
+        member _.MinChanged = minChanged.Publish
         
         /// slider maxValue changed
         [<CLIEvent>]
-        member x.MaxChanged = maxChanged.Publish
+        member _.MaxChanged = maxChanged.Publish
 
     
 
@@ -135,7 +135,20 @@ module Sliders =
         sliderVM.MinChanged.Add ( fun _ -> setChangeStep())
         sliderVM.MaxChanged.Add ( fun _ -> setChangeStep())
 
+        //Tooltip: //TODO make bindig to sliderVM.CurrentValueBinding to have same float formating
+        slider.AutoToolTipPlacement <- Primitives.AutoToolTipPlacement.TopLeft
+        let mutable prec = 0
+        slider.AutoToolTipPrecision <- prec 
+        if not sliderVM.SnapToInteger then 
+            slider.ValueChanged.Add ( fun a -> 
+                let np = NumberFormating.getPrecision a.NewValue
+                if np<> prec then 
+                    prec <- np
+                    slider.AutoToolTipPrecision <- np)
+
+
         let d = new DockPanel()
+        d.Background <- Brush.make(235,  235,  235) 
         d.Children
         |> add header
         |> add curt  
@@ -149,7 +162,6 @@ module Sliders =
         DockPanel.SetDock(mit,Dock.Left)
         DockPanel.SetDock(mat,Dock.Right)    
     
-        d.Background <- Brush.make(235,  235,  235) 
         {
         header=header
         currentVal = curt
