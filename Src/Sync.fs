@@ -7,7 +7,7 @@ open System.Windows.Threading
 
 /// Threading Utils to setup and access the SynchronizationContext 
 /// and evaluate any function on UI thread (Sync.doSync(f))
-type Sync private () =    
+type SyncWpf private () =    
     
     // This static class could be a module too but then the .context member could not do a check for initilisation on every access.
     // It would be done when the module is loaded, that might be too early.
@@ -15,12 +15,6 @@ type Sync private () =
     static let mutable errorFileWrittenOnce = false // to not create more than one error file on Desktop per app run
 
     static let mutable ctx : SynchronizationContext = null  // will be set on first access
-    
-    // state for .doOnlyOne member
-    static let mutable busy =  false    
-    static let mutable pending = None    
-    static let counter = ref 0L
-
 
     /// To ensure SynchronizationContext is set up.
     /// optionally writes a log file to the desktop if it fails, since these errors can be really hard to debug    
@@ -53,7 +47,7 @@ type Sync private () =
     /// If installSynchronizationContext fails an error file is written on the desktop since debugging this kind of errors can be hard
     static member doSync(func) = 
         async {
-            do! Async.SwitchToContext Sync.context
+            do! Async.SwitchToContext SyncWpf.context
             func()
             } |> Async.StartImmediate
 
@@ -61,13 +55,21 @@ type Sync private () =
         // https://github.com/fsprojects/FsXaml/blob/c0979473eddf424f7df83e1b9222a8ca9707c45a/src/FsXaml.Wpf/Utilities.fs#L132
         // https://stackoverflow.com/questions/61227071/f-async-switchtocontext-vs-dispatcher-invoke
 
+type Synchroniser() =
+    
+    
+    let mutable busy =  false  
+    
+    let mutable pending = None 
+    
+    let counter = ref 0L
     
     /// This ensures that only one of the  supplied function runs at the same times
     /// Calls get discarded if another one is running. Except for most recent call:
     /// It also ensures that the last call is not ommited, when no other one is pending, even if it was busy while receiving it.
     /// For example this is usfull for redrawing a UI or graphic while a slider sends many value changed events.
     /// Does not do a switch to UI thread (except for the last call)
-    static member doOnlyOne(updateUi: unit->unit) =
+    member _.doOnlyOne(updateUi: unit-> unit) =
         if busy then  
             pending <- Some updateUi 
         else
@@ -75,6 +77,39 @@ type Sync private () =
             pending <- None // first set to none
             updateUi() // during this call pending might get set to some oder call
             busy <- false
+            //done updateUi, now check for last and most recent updateUi call that might have been set to pending var in the meantime
+            match pending with 
+            |None -> () 
+            |Some f -> 
+                let k = !counter + 1L
+                counter := k
+                // this might get called very often, would it be cheaper to use a task instead ?
+                async{                     
+                    do! Async.Sleep 50
+                    if k = !counter then  // only do if last call for 50 ms                        
+                        match pending with // check again just in case
+                        |None -> () 
+                        |Some f -> f() 
+                } |> Async.StartImmediate
+    
+    member _.SetReady() = 
+        busy <- false
+
+    /// This ensures that only one of the  supplied function runs at the same times
+    /// IMPORTANT: Call Synchroniser.SetReady() at the end (of any nested async workflows), to enable next call.
+    /// Calls get discarded if another one is running. Except for most recent call:
+    /// It also ensures that the last call is not ommited, when no other one is pending, even if it was busy while receiving it.
+    /// For example this is usfull for redrawing a UI or graphic while a slider sends many value changed events.
+    /// Does not do a switch to UI thread (except for the last call)
+    member _.doOnlyOneManual(updateUi: unit->unit) =
+        if busy then  
+            pending <- Some updateUi 
+        else
+            busy <- true
+            pending <- None // first set to none
+            updateUi() // during this call pending might get set to some oder call
+            // busy <- false // this has to be done explicitly via this.SetReady() inside of updateUi function
+            
             //done updateUi, now check for last and most recent updateUi call that might have been set to pending var in the meantime
             match pending with 
             |None -> () 
