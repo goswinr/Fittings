@@ -9,7 +9,130 @@ open System.Windows.Data
 open System.ComponentModel
 
 
-module FormatedFloats = 
+module ManualPrecicionFloats = 
+    
+    /// CultureInfo.InvariantCulture
+    let invC = Globalization.CultureInfo.InvariantCulture
+
+    let getTicks(precicion:int) = 
+        match precicion with 
+        | -4 -> 10000.
+        | -3 -> 1000.
+        | -2 -> 100.
+        | -1 -> 10.
+        | 0  -> 1.
+        | 1  -> 0.1
+        | 2  -> 0.01
+        | 3  -> 0.001
+        | 4  -> 0.0001
+        | 5  -> 0.00001
+        | _ ->
+            eprintf "Bad FloatTextBox.precicion: %d" precicion
+            0.0001
+    
+
+    let format (x:float, precicion:int) =
+        match precicion with 
+        | -4 -> (10000. * round(x*0.0001)).ToString("0") 
+        | -3 -> (1000. * round(x*0.001)).ToString("0") 
+        | -2 -> (100. * round(x*0.01)).ToString("0") 
+        | -1 -> (10. * round(x*0.1)).ToString("0") 
+        | 0  -> x.ToString("0" ) 
+        | 1  -> x.ToString("0.#", invC) 
+        | 2  -> x.ToString("0.##" , invC)
+        | 3  -> x.ToString("0.###" , invC)
+        | 4  -> x.ToString("0.####" , invC) 
+        | 5  -> x.ToString("0.#####" , invC) 
+        | _ -> 
+            eprintf "Bad FloatTextBox.format: %d" precicion
+            x.ToString("0.#####" , invC) 
+
+
+
+    /// A text box for Numbers formated with  given Precsion
+    type ManualPrecicionFloatTextBox() as this  = 
+        inherit TextBox() 
+    
+        let updateBindings() = 
+            this.GetBindingExpression(TextBox.TextProperty).UpdateSource()
+            //this.GetBindingExpression(TextBox.TextProperty).UpdateTarget() // not needed           
+    
+        do 
+            // explicit binding update:
+            // there are some case that should not trigger a binding update
+            this.TextChanged.Add (fun a -> 
+                let t = this.Text
+                let i = this.CaretIndex
+                let len = t.Length                 
+                if  len = 0  then a.Handled <- true // empty field
+                elif t="-"   then a.Handled <- true // just typed a minus
+                elif i=len   then // entered last char                
+                    let last = t.[len-1]
+                    if   last = '.'  then a.Handled <- true // just typed a '.'
+                    elif last = ','  then a.Handled <- true // just typed a ',' , will be convrted to '.' in binding convertor
+                    else 
+                        let hasDot = t.IndexOf "." <> -1
+                        if hasDot && last = '0'  then a.Handled <- true // one or several '0' after a '.'
+                        else updateBindings()
+                else updateBindings()                 
+                )
+      
+       
+       
+    /// A binding that uses  custom float formating precicion for diplaying floats
+    /// uses UpdateSourceTrigger.Explicit so update thsese bindings explicitly
+    type ManualPrecicionFloatBinding (viewMmodel:INotifyPropertyChanged, propertyName : string, precicion:int) = 
+        inherit Binding()     
+        do  
+            // this and other case are handele explicitly in Textbox.TextChanged. event
+            //try
+            //    // So that wpf textboxes that are bound to floats can have a dot input too. see https://stackoverflow.com/a/35942615/969070
+            //    // setting this might fails when a hosting WPF process is alread up and running (eg loaded in another WPF thread ,for example in Seff UI therad)  
+            //    FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty <- false
+            //with  _ -> ()
+            //    //if FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty then 
+            //    //    eprintfn "could not set KeepTextBoxDisplaySynchronizedWithTextProperty to false "
+                       
+            base.Source <- viewMmodel
+            base.Path <- new PropertyPath(propertyName) 
+            base.Mode <- BindingMode.TwoWay 
+            base.UpdateSourceTrigger <- UpdateSourceTrigger.Explicit // the requires explicit events on UIControls ( not UpdateSourceTrigger.PropertyChanged  )
+                               
+            //base.StringFormat <- "0.##" 
+                   
+            base.Converter <-
+                {new IValueConverter with 
+                    member  _.Convert(value:obj,  targetType:Type, parameter:obj,  culture:CultureInfo) =  
+                        //match value with 
+                        //| :? string -> printfn "convert string to %s:%A" targetType.Name value
+                        //| :? float -> printfn "convert float to %s:%A" targetType.Name value
+                        //| _ -> printfn "convert Other to %s:%A" targetType.Name value 
+                        if targetType = typeof<string> then 
+                            match value with 
+                            | :? float as v -> format (v,precicion)  :> obj
+                            | _ -> value
+                        else 
+                            value
+                           
+                    member _.ConvertBack(value:obj,  targetType:Type, parameter:obj,  culture:CultureInfo) = 
+                        //match value with 
+                        //| :? string -> printfn "convert BACK string to %s:%A" targetType.Name value
+                        //| :? float -> printfn "convert BACK float to %s:%A" targetType.Name value
+                        //| _ -> printfn "convert BACK Other to %s:%A" targetType.Name value                     
+                        if targetType = typeof<Double> then 
+                            match value with 
+                            | :? string as str -> 
+                                let strEn = str.Replace( ",", ".") // to allow german formating too, also done in  TextBoxForSepChar TextChanged event          
+                                match Double.TryParse strEn with                      
+                                |true, v -> v :> obj
+                                |false, _   ->  null
+                            | _ ->  value
+                        else 
+                            value
+                        }
+
+
+module AutoPrecicionFloats = 
 
     module Literals = 
     
@@ -32,7 +155,7 @@ module FormatedFloats =
         [<Literal>]
         let AlmostZeroNeg = "-~0.0"
 
-    module NumberFormating = 
+    module AutoPrecicionFormating = 
     
         // implementations copied from FsEx.MathUtil and FsEx.NiceString
 
@@ -47,8 +170,7 @@ module FormatedFloats =
 
         /// set this to change the printing of floats larger than 10'000
         let mutable thousandSeparator = '\'' // = just one quote '
-
-    
+            
 
         /// Assumes a string that represent a float or int with '.' as decimal serapator and no other input formating
         let addThousandSeparators (s:string) =
@@ -155,15 +277,15 @@ module FormatedFloats =
                 elif x >= 0.0 then 2
                 else 2
 
-    /// A text box for Numbers formated with NumberFormating.thousandSeparator via FormatedFloatBinding
+    /// A text box for Numbers formated with AutoPrecicionFormating.thousandSeparator via FormatedFloatBinding
     /// Handles deleting correctly to remove number and separator at once if appropiate.
     /// Also has custom logic for positioning caret
     /// (Inserting thousandSeparator is controlled by converter in FormatedFloatBinding) 
-    type FormatedFloatTextBox() as this  = 
+    type AutoPrecicionFloatTextBox() as this  = 
         inherit TextBox()                
     
         /// storing the expected caret position after inserting or delete key
-        /// counting only numbers and any othe symbols like  , . - but not NumberFormating.thousandSeparator
+        /// counting only numbers and any othe symbols like  , . - but not AutoPrecicionFormating.thousandSeparator
         let mutable numsBeforeCaret = 0
     
         /// the caret position ignoring thousand separators
@@ -171,7 +293,7 @@ module FormatedFloats =
             numsBeforeCaret<-0
             for i=0 to pos-1 do
                 //printfn "setNumCaret:%d" i
-                if s.[i] <> NumberFormating.thousandSeparator then 
+                if s.[i] <> AutoPrecicionFormating.thousandSeparator then 
                     numsBeforeCaret <- numsBeforeCaret + 1
             numsBeforeCaret <- numsBeforeCaret + shift
             //printfn "numsBeforeCaret:%d" numsBeforeCaret
@@ -182,7 +304,7 @@ module FormatedFloats =
             let rec loop (nums,i) = 
                 if i=s.Length               then this.CaretIndex <- i
                 elif nums = numsBeforeCaret then this.CaretIndex <- i //max 0 (min this.Text.Length i)
-                elif s.[i] <> NumberFormating.thousandSeparator then loop(nums+1,i+1)
+                elif s.[i] <> AutoPrecicionFormating.thousandSeparator then loop(nums+1,i+1)
                 else loop(nums,i+1)
             loop(0,0)
 
@@ -230,7 +352,7 @@ module FormatedFloats =
                         setNumCaret(t, i, 0) // 0 = caret does not move
                         if t.Length > i+1 then // 2 chars left minimum
                             //printf "t.[i] = %c " t.[i] 
-                            if t.[i] = NumberFormating.thousandSeparator then 
+                            if t.[i] = AutoPrecicionFormating.thousandSeparator then 
                                 a.Handled<-true
                                 this.Text <- t.Remove(i,2)
                                 //this.CaretIndex <- i // done by setActualCaret after binding update
@@ -239,7 +361,7 @@ module FormatedFloats =
                         setNumCaret(t,i, -1)// anticipates that caret moves one to left
                         if i>1 then // 2 chars left minimum
                             //printf "t.[i-1] = %c " t.[i-1] 
-                            if t.[i-1] = NumberFormating.thousandSeparator then 
+                            if t.[i-1] = AutoPrecicionFormating.thousandSeparator then 
                                 a.Handled<-true
                                 this.Text <- t.Remove( i-2 , 2)
                                 //this.CaretIndex <- i-2 // done by setActualCaret after binding update
@@ -248,7 +370,8 @@ module FormatedFloats =
                     else // any key - also non numeric keys, but this has no effect on result
                         setNumCaret(t, i, 1) // anticipates that caret moves one to right
             
-                                //elif a.Key = Key.OemComma then // replace comma with period !! // done in Binding converter
+                
+                //elif a.Key = Key.OemComma then // replace comma with period !! // done in Binding converter
                 //   let t = this.Text
                 //   let i = this.CaretIndex
                 //   a.Handled<-true
@@ -260,10 +383,10 @@ module FormatedFloats =
     /// A binding that uses variable custom float formating  for diplaying floats
     /// includes thousand separators in Binding converter
     /// uses UpdateSourceTrigger.Explicit so update thsese bindings explicitly
-    type FormatedFloatBinding (viewMmodel:INotifyPropertyChanged, propertyName : string, snapToInt:bool) = 
+    type AutoPrecicionFloatBinding (viewMmodel:INotifyPropertyChanged, propertyName : string) = 
         inherit Binding()     
         do  
-            // this and other case ar handele explicitly in Textbox.TextChanged. event
+            // this and other case aer handled explicitly in Textbox.TextChanged. event
             //try
             //    // So that wpf textboxes that are bound to floats can have a dot input too. see https://stackoverflow.com/a/35942615/969070
             //    // setting this might fails when a hosting WPF process is alread up and running (eg loaded in another WPF thread ,for example in Seff UI therad)  
@@ -288,10 +411,7 @@ module FormatedFloats =
                         //| _ -> printfn "convert Other to %s:%A" targetType.Name value 
                         if targetType = typeof<string> then 
                             match value with 
-                            | :? float as v ->  
-                                if snapToInt then v.ToString("0")|> NumberFormating.addThousandSeparators        
-                                else  NumberFormating.float v                                       
-                                :> obj
+                            | :? float as v -> AutoPrecicionFormating.float v  :> obj
                             | _ -> value
                         else 
                             value
@@ -305,7 +425,7 @@ module FormatedFloats =
                             match value with 
                             | :? string as str -> 
                                 let strEn = str.Replace( ",", ".") // to allow german formating too, also done in  TextBoxForSepChar TextChanged event          
-                                match NumberFormating.tryParseNiceFloat strEn with                      
+                                match AutoPrecicionFormating.tryParseNiceFloat strEn with                      
                                 |Some v ->v :> obj
                                 |None   ->  null
                             | _ ->  value
