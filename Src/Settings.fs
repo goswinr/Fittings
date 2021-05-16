@@ -11,6 +11,8 @@ open System.Text
 /// comments are not allowed
 type Settings (appName:string) = 
     
+    let  sep    = '=' // key value separator    
+    
     let filePath = 
         let appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
         let p = IO.Path.Combine(appData,appName)
@@ -18,12 +20,12 @@ type Settings (appName:string) =
         let f = IO.Path.Combine(p,"Settings.txt")
         f
         
-    let  sep    = '=' // key value separator    
+    let writer = Util.SaveReadWriter(filePath)
 
     let settingsDict = 
         let dict = new Collections.Concurrent.ConcurrentDictionary<string,string>()   
         try            
-            for ln in  IO.File.ReadAllLines filePath do
+            for ln in writer.ReadAllLines() do
                 match ln.Split(sep) with
                 | [|k;v|] -> dict.[k] <- v // TODO allow for comments? tricky because comments need to be saved back too
                 | _       -> eprintfn "Bad line in settings file file: '%s'" ln
@@ -32,7 +34,6 @@ type Settings (appName:string) =
             | e ->                            eprintfn  "Problem reading or initalizing settings file: %A"  e
         dict    
 
-    let writer = SaveWriter()
     
     let settingsAsString () = 
         let sb = StringBuilder()
@@ -75,7 +76,7 @@ type Settings (appName:string) =
 
     /// Write to Settings.txt file in appdata folder
     member this.Save () =                       
-        writer.WriteIfLast (filePath, settingsAsString,  500)
+        writer.WriteIfLast (settingsAsString,  500)
         
     member this.SetFloat        key (v:float)       = this.Set key (string v)
 

@@ -2,13 +2,9 @@
 
 open System
 open System.Windows
-open System.Windows.Data
-open System.Windows.Controls
-open System.Globalization
-open System.ComponentModel
 
-open System.Collections.ObjectModel
-open System.ComponentModel
+open System.Windows.Controls
+
 open System.Windows.Input
 open FsEx.Wpf.ViewModel
 open FsEx.Wpf.AutoPrecicionFloats
