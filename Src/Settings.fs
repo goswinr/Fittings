@@ -20,7 +20,7 @@ type Settings (appName:string) =
         let f = IO.Path.Combine(p,"Settings.txt")
         f
         
-    let writer = Util.SaveReadWriter(filePath)
+    let writer = SaveReadWriter(filePath)
 
     let settingsDict = 
         let dict = new Collections.Concurrent.ConcurrentDictionary<string,string>()   
