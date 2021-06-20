@@ -71,7 +71,7 @@ module ManualPrecicionFloats =
                     if   last = '.'  then a.Handled <- true // just typed a '.'
                     elif last = ','  then a.Handled <- true // just typed a ',' , will be convrted to '.' in binding convertor
                     else 
-                        let hasDot = t.IndexOf "." <> -1
+                        let hasDot = t.IndexOf '.' <> -1
                         if hasDot && last = '0'  then a.Handled <- true // one or several '0' after a '.'
                         else updateBindings()
                 else updateBindings()                 
