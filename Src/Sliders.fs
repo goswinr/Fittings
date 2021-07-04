@@ -198,7 +198,15 @@ module Sliders =
         maxVal      :ManualPrecicionFloatTextBox
         panel       :DockPanel
         }
-   
+    
+    type ManualPrecicionSliderPanelFixBounds = {
+        header      :TextBlock
+        currentVal  :ManualPrecicionFloatTextBox
+        minVal      :TextBlock
+        slider      :SliderEx
+        maxVal      :TextBlock
+        panel       :DockPanel
+        }
 
     let makeSliderPanelAutoPrecicion(label:string, sliderVM:AutoPrecicionSliderViewModel) :AutoPrecicionSliderPanel= 
         // make view
@@ -274,14 +282,13 @@ module Sliders =
 
     
     let makeSliderPanelManualPrecicion(label:string, sliderVM:ManualPrecicionSliderViewModel) :ManualPrecicionSliderPanel=         
-        
-        
+                
         // make view
-        let header  = TextBlock(                    MinWidth = 200.  ,  Margin = Thickness(3.),  TextAlignment=TextAlignment.Right )
+        let header  = TextBlock(                    MinWidth = 300.  ,  Margin = Thickness(3.),  TextAlignment=TextAlignment.Right )
         let curt    = ManualPrecicionFloatTextBox(  MinWidth =  60.  ,  Margin = Thickness(6. , 3. , 6. , 3.)) 
         let mit     = ManualPrecicionFloatTextBox(  MinWidth =  40.  ,  Margin = Thickness(3.),  TextAlignment=TextAlignment.Right ) 
         let slider  = SliderEx(                     MinWidth = 100.  ,  Margin = Thickness(3.))    
-        let mat     = ManualPrecicionFloatTextBox(  MinWidth =  40.  ,  Margin = Thickness(3.)) 
+        let mat     = ManualPrecicionFloatTextBox(  MinWidth =  40.  ,  Margin = Thickness(3.))         
    
         header.Text <- label + ":"
         mit.Background <- Brush.make(245,  245,  245) 
@@ -343,6 +350,78 @@ module Sliders =
         maxVal= mat
         panel=d
         }
+
+
+    let makeSliderPanelManualPrecicionFixBounds(label:string, sliderVM:ManualPrecicionSliderViewModel) :ManualPrecicionSliderPanelFixBounds=         
+            
+        // make view
+        let header  = TextBlock(                    MinWidth = 300.  ,  Margin = Thickness(3.),  TextAlignment=TextAlignment.Right )
+        let curt    = ManualPrecicionFloatTextBox(  MinWidth =  60.  ,  Margin = Thickness(6. , 3. , 6. , 3.)) 
+        let mit     = TextBlock(                    MinWidth =  40.  ,  Margin = Thickness(3.),  TextAlignment=TextAlignment.Right ) 
+        let slider  = SliderEx(                     MinWidth = 100.  ,  Margin = Thickness(3.))    
+        let mat     = TextBlock(                    MinWidth =  40.  ,  Margin = Thickness(3.))         
+   
+        header.Text <- label + ":"
+        //mit.Background <- Brush.make(245,  245,  245) 
+        //mat.Background <- Brush.make(245,  245,  245)
+
+        slider.Background <- Brush.make(255,  255,  255) 
+        slider.Delay <- 100  
+
+    
+        slider.SmallChange <- getTicks sliderVM.Precicion //  when pressing right or left arrow key
+        slider.LargeChange <- getTicks sliderVM.Precicion // when klicking right or left of the current value cursor
+    
+
+        //bind to view model
+        mit.SetBinding   (TextBlock.TextProperty  , sliderVM.MinValBinding  )    |> ignore 
+        mat.SetBinding   (TextBlock.TextProperty  , sliderVM.MaxValBinding  )    |> ignore 
+        curt.SetBinding  (TextBox.TextProperty  , sliderVM.CurrentValueBinding)    |> ignore 
+        slider.SetBinding(Slider.MinimumProperty, sliderVM.MinValBinding      )    |> ignore 
+        slider.SetBinding(Slider.MaximumProperty, sliderVM.MaxValBinding      )    |> ignore 
+        slider.SetBinding(Slider.ValueProperty  , sliderVM.CurrentValueBinding)    |> ignore  
+    
+        // explicit binding update ( for textboxes the  explicit  update is set in AutoPrecicionFloatTextBox class)
+        slider.ValueChanged.Add (fun a -> 
+            slider.GetBindingExpression(Slider.ValueProperty).UpdateSource() )//because the binding in text box is set to explicit update
+            //slider.GetBindingExpression(Slider.ValueProperty).UpdateTarget() )
+
+ 
+
+        //Tooltip: //TODO make bindig to sliderVM.CurrentValueBinding to have same float formating
+        slider.AutoToolTipPlacement <- Primitives.AutoToolTipPlacement.TopLeft        
+        slider.AutoToolTipPrecision <- sliderVM.Precicion
+    
+        slider.IsSnapToTickEnabled <- true
+        slider.TickFrequency <- getTicks sliderVM.Precicion 
+        //slider.TickPlacement <- Primitives.TickPlacement.Both // draw ticks too?    
+
+        let d = new DockPanel()
+        d.Background <- Brush.make(235,  235,  235) 
+        d.Children
+        |> add header
+        |> add curt  
+        |> add mit
+        |> add mat
+        |> add slider //added last so it will strech to fill remaining space
+        |> ignore 
+
+        DockPanel.SetDock(header,Dock.Left)
+        DockPanel.SetDock(curt,Dock.Left)
+        DockPanel.SetDock(mit,Dock.Left)
+        DockPanel.SetDock(mat,Dock.Right)    
+    
+ 
+
+        {
+        header=header
+        currentVal = curt
+        minVal= mit
+        slider= slider
+        maxVal= mat
+        panel=d
+        }
+
 
 (*
 test:
