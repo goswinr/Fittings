@@ -24,6 +24,7 @@ module internal Util =
 
 /// Reads and Writes with Lock, 
 /// Optionally only once after a delay in which it might be called several times
+/// using Text.Encoding.UTF8
 type SaveReadWriter (path:string)= 
     // similar class also exist in FsEx , FsEx.Wpf and Seff
    
@@ -39,14 +40,14 @@ type SaveReadWriter (path:string)=
     /// Ensures that no writing happens while reading.
     member this.ReadAllText () : string =
         // lock is using Monitor class : https://github.com/dotnet/fsharp/blob/6d91b3759affe3320e48f12becbbbca493574b22/src/fsharp/FSharp.Core/prim-types.fs#L4793
-        lock lockObj (fun () -> IO.File.ReadAllText(path))            
+        lock lockObj (fun () -> IO.File.ReadAllText(path, Text.Encoding.UTF8))            
             
 
     /// Save reading.
     /// Ensures that no writing happens while reading.
     member this.ReadAllLines () : string[] =
         // lock is using Monitor class : https://github.com/dotnet/fsharp/blob/6d91b3759affe3320e48f12becbbbca493574b22/src/fsharp/FSharp.Core/prim-types.fs#L4793
-        lock lockObj (fun () -> IO.File.ReadAllLines(path))
+        lock lockObj (fun () -> IO.File.ReadAllLines(path, Text.Encoding.UTF8))
     
     
     /// File will be written async and with a Lock.
@@ -55,7 +56,7 @@ type SaveReadWriter (path:string)=
     member this.WriteAsync (text) =        
         async{
             lock lockObj (fun () -> // lock is using Monitor class : https://github.com/dotnet/fsharp/blob/6d91b3759affe3320e48f12becbbbca493574b22/src/fsharp/FSharp.Core/prim-types.fs#L4793
-                try  IO.File.WriteAllText(path,text)
+                try  IO.File.WriteAllText(path,text, Text.Encoding.UTF8)
                 // try & with is needed because exceptions on threadpool cannot be caught otherwise !!
                 with ex ->  eprintfn "SaveWriter.WriteAsync failed with: %A \r\n while writing to %s:\r\n%A" ex path text // use %A to trimm long text        
                 )       
@@ -67,7 +68,7 @@ type SaveReadWriter (path:string)=
     member this.WriteAllLinesAsync (texts) =        
         async{
             lock lockObj (fun () -> // lock is using Monitor class : https://github.com/dotnet/fsharp/blob/6d91b3759affe3320e48f12becbbbca493574b22/src/fsharp/FSharp.Core/prim-types.fs#L4793
-                try  IO.File.WriteAllLines(path,texts)
+                try  IO.File.WriteAllLines(path,texts, Text.Encoding.UTF8)
                 // try & with is needed because exceptions on threadpool cannot be caught otherwise !!
                 with ex ->  eprintfn "SaveWriter.WriteAllLinesAsync failed with: %A \r\n while writing to %s:\r\n%A" ex path texts // use %A to trimm long text        
                 )       
