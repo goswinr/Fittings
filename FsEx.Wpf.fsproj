@@ -1,39 +1,65 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop"> 
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">   
   <PropertyGroup>
     <OutputType>Library</OutputType>
+    <TargetFrameworks>net472</TargetFrameworks>  
     <UseWPF>true</UseWPF>    
-    <TargetFrameworks>net472</TargetFrameworks>    
-
     <LangVersion>preview</LangVersion>
-    <NeutralLanguage>en</NeutralLanguage>
-    <SatelliteResourceLanguages>en</SatelliteResourceLanguages> <!--to only have the english resources or Fsharp.Core-->
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     
+    <NeutralLanguage>en</NeutralLanguage>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>    <!--to only have the english resources-->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
     <RootNamespace>FsEx.Wpf</RootNamespace>
     <AssemblyName>FsEx.Wpf</AssemblyName>
-    <Version>0.0.1.0</Version>
-    <AssemblyVersion>0.0.1.0</AssemblyVersion>
-    <FileVersion>0.0.1.0</FileVersion>
+    <AssemblyTitle>FsEx.Wpf</AssemblyTitle>
+    <Title>FsEx.Wpf</Title>  
+    <Product>FsEx.Wpf</Product>
+    <PackageId>FsEx.Wpf</PackageId>  
 
-    <Authors>Goswin Rothenthal</Authors>
-    <Product>FsEx.Wpf</Product> 
-    <Description>Tools for using WPF with F#</Description>
-    <Copyright>Goswin Rothenthal</Copyright>   
+    <Version>1.0.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <PackageReleaseNotes>First release</PackageReleaseNotes>
+
+    
+    <Authors>GoswinR</Authors>
+    <Copyright>Goswin Rothenthal 2021</Copyright>
+
+    <Description>FsEx.Wpf is a collection of utilities for working with WPF in F#</Description>
+    <ApplicationIcon>Docs/logo.ico</ApplicationIcon> 
     
     <Configurations>Release</Configurations>
-    
+  </PropertyGroup>
+
+ <PropertyGroup> 
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>      
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/goswinr/FsEx.Wpf</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/goswinr/FsEx.Wpf</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageIcon>logo128.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageDescription>FsEx.Wpf is a collection of utilities for working with WPF in F#</PackageDescription>    
+    <PackageTags>WPF F#</PackageTags>    
   </PropertyGroup>
 
 
   <ItemGroup>
+    <None Include="Doc/logo128.png" Pack="true" PackagePath="\" /> <!--PackagePath = "\" makes the fike availabe to nuget pack tool-->
+    <None Include="README.md" Pack="true" PackagePath="\" />
+
     <Compile Include="Src/Sync.fs" />
     <Compile Include="Src/SaveWriter.fs" />
     <Compile Include="Src/Settings.fs" />
     <Compile Include="Src/Command.fs" />
     <Compile Include="Src/ViewModel.fs" />
     <Compile Include="Src/DependencyProps.fs" />
-    <Compile Include="Src\ErrorHandeling.fs" />
+    <Compile Include="Src/ErrorHandeling.fs" />
     <Compile Include="Src/PositionedWindow.fs" />
   </ItemGroup>
 
