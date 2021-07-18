@@ -7,7 +7,6 @@ open System.Windows.Input
 
 module DependencyProps =  
 
-
     //---------- creating UIElemnts --------------
 
     // see: http://www.fssnip.net/4W/title/Calculator
@@ -43,8 +42,7 @@ module DependencyProps =
             DependencyPropertyBindingPair(TextBox.TextProperty,binding)
 
     let makeGridLength len = new GridLength(len, GridUnitType.Star)
-
-    
+        
 
     let makeMenu (xss:list<MenuItem*list<Control>>)=
         let menu = new Menu()
@@ -64,6 +62,7 @@ module DependencyProps =
         let menu = new ContextMenu()
         for x in xs do menu.Items.Add (x) |> ignore         
         menu
+    
     
        
     /// clear Grid first and then set with new elements        

@@ -7,10 +7,15 @@ open System.Text
  
 /// A class to save window size, layout and position,  and more Settings
 /// This class is usefull wenn in a hosted contex app.config does not work
-/// values in txt file wil be sperated by  '=' 
-/// comments are not allowed
-type Settings (appName:string) = 
-    
+/// Values in txt file wil be sperated by  '=' . 
+/// Comments are not allowed
+type Settings (applicationName:string) =     
+
+    let appName = 
+        let mutable n = applicationName
+        for c in IO.Path.GetInvalidFileNameChars() do  n <- n.Replace(c, '_')
+        n
+
     let  sep    = '=' // key value separator    
     
     let filePath = 
@@ -67,9 +72,14 @@ type Settings (appName:string) =
     /// comments care not allowed.
     /// call this.Save() afterwards to write to file in appdata folder
     member this.Set (k:string) (v:string) = 
-        if k.IndexOf(sep) > -1 then eprintf  "Settings key shall not contain '%c' : %s%c%s"  sep  k  sep  v            
-        if v.IndexOf(sep) > -1 then eprintf  "Settings value shall not contain '%c' : %s%c%s"  sep  k  sep  v 
-        settingsDict.[k] <- v             
+        if    k.IndexOf(sep) > -1 then 
+            eprintf  "Settings key shall not contain '%c' : key'%s' value'%s'"  sep  k  v 
+            settingsDict.[k.Replace("=","")] <- v.Replace("=","")   
+        elif  v.IndexOf(sep) > -1 then 
+            eprintf  "Settings value shall not contain '%c' : key'%s' value'%s'"  sep  k  v
+            settingsDict.[k.Replace("=","")] <- v.Replace("=","")   
+        else 
+            settingsDict.[k] <- v             
         
     /// get String value from settings
     member this.Get k = get k        

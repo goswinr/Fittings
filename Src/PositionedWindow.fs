@@ -6,35 +6,29 @@ open System.Windows
 
 /// A class holding a resizable Window that remebers its position even after restarting.
 /// The appName in constructor will be used as Title and to save a settings.txt file in User's Appdata folder
-type PositionedWindow (appName) as this = 
+type PositionedWindow (appName:string) as this = 
     inherit Windows.Window() 
 
     let appFileName = 
         if String.IsNullOrWhiteSpace appName then "Unnamed FsEX PositionedWindow"
-        else 
-            let sb = new Text.StringBuilder()
-            for c in appName.Trim() do // make a valid file name, not allowed < > : " / \ | ? *
-                if (c >= '0' && c <= '9') 
-                || (c >= 'A' && c <= 'Z') 
-                || (c >= 'a' && c <= 'z') 
-                ||  c = '.'  ||  c = '_'   ||  c = ' ' ||  c = '-' ||  c = '!' 
-                ||  c = '&'  ||  c = '='
-                ||  c = '+'  ||  c = '('   ||  c = ')' ||  c = '[' ||  c = ']'  then  sb.Append(c) |> ignore
-            sb.ToString()
+        else             
+            let mutable n = appName
+            for c in IO.Path.GetInvalidFileNameChars() do  n <- n.Replace(c, '_')
+            n  
     
     let settings = Settings(appFileName)
 
     /// the owning window
-    let owner = IntPtr.Zero
+    let mutable owner = IntPtr.Zero
  
     let mutable setMaxAfterLoading = false
 
     let mutable isMinOrMax = false     
     
     do       
-        if not (String.IsNullOrWhiteSpace appName) then base.Title <- appName
+        if not (String.IsNullOrWhiteSpace appName) then base.Title <- appName // migth srtil have special signs
         base.ResizeMode  <- ResizeMode.CanResize  
-              
+             
         //-------------------------------------------------------------------------
         // -  all below code is for load and safe window location and size ---
         //-------------------------------------------------------------------------
@@ -67,15 +61,15 @@ type PositionedWindow (appName) as this =
             isMinOrMax  <- true
 
         elif  winTop  < -offTolerance || winHeight + winTop  > maxH then 
-            eprintfn "FsEx.PositionedWindow:Could not restore previous Window position:"
-            eprintfn "FsEx.PositionedWindow: winTopPosition: %.1f  + winHeight: %.1f  = %.1f that is bigger than maxH: %.1f + %.1f tolerance" winTop winHeight   ( winHeight + winTop ) SystemParameters.VirtualScreenHeight offTolerance
+            eprintfn "FsEx.Wpf.PositionedWindow:Could not restore previous Window position:"
+            eprintfn "FsEx.Wpf.PositionedWindow: winTopPosition: %.1f  + winHeight: %.1f  = %.1f that is bigger than maxH: %.1f + %.1f tolerance" winTop winHeight   ( winHeight + winTop ) SystemParameters.VirtualScreenHeight offTolerance
             base.WindowStartupLocation <- WindowStartupLocation.CenterScreen                
             base.Height <- 600.0                
             base.Width  <- 600.0
 
         elif winLeft < -offTolerance || winWidth  + winLeft > maxW then
-            eprintfn "FsEx.PositionedWindow: Could not restore previous Window position:"
-            eprintfn "FsEx.PositionedWindow: winLeftPosition: %.1f  + winWidth: %.1f = %.1f that is bigger than maxW: %.1f + %.1f tolerance" winLeft winWidth ( winWidth +  winLeft) SystemParameters.VirtualScreenWidth offTolerance
+            eprintfn "FsEx.Wpf.PositionedWindow: Could not restore previous Window position:"
+            eprintfn "FsEx.Wpf.PositionedWindow: winLeftPosition: %.1f  + winWidth: %.1f = %.1f that is bigger than maxW: %.1f + %.1f tolerance" winLeft winWidth ( winWidth +  winLeft) SystemParameters.VirtualScreenWidth offTolerance
             base.WindowStartupLocation <- WindowStartupLocation.CenterScreen
             base.Height <- 600.0                
             base.Width  <- 600.0
@@ -119,7 +113,7 @@ type PositionedWindow (appName) as this =
             |WindowState.Minimized ->                 
                 isMinOrMax  <- true
             |wch -> 
-                eprintfn "FsEx.PositionedWindow: unknown WindowState State change=%A" wch
+                eprintfn "FsEx.Wpf.PositionedWindow: unknown WindowState State change=%A" wch
                 isMinOrMax  <- true
             )
 
@@ -129,7 +123,9 @@ type PositionedWindow (appName) as this =
                 settings.SetFloatDelayed "WindowWidth"  this.Width  100
                 settings.Save ()                
             )
-   
+    
+    ///indicating if the Window is in Fullscreen mode or minimized mode (not normal mode)
+    member this.IsMinOrMax = isMinOrMax
    
     /// Get or Set the native Window Handle that owns this window. 
     /// Use if this Window is hosted in another native app  (via IntPtr).
@@ -138,7 +134,10 @@ type PositionedWindow (appName) as this =
         with get () = owner
         and set ptr =
             if ptr <> IntPtr.Zero then
+                owner <- ptr
                 Interop.WindowInteropHelper(this).Owner <- ptr
+
+    member this.Settings = settings
     
     
     
