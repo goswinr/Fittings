@@ -21,21 +21,19 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <PackageReleaseNotes>First release</PackageReleaseNotes>
-
     
     <Authors>GoswinR</Authors>
     <Copyright>Goswin Rothenthal 2021</Copyright>
 
     <Description>FsEx.Wpf is a collection of utilities for working with WPF in F#</Description>
-    <ApplicationIcon>Docs/logo.ico</ApplicationIcon> 
-    
+        
     <Configurations>Release</Configurations>
   </PropertyGroup>
 
  <PropertyGroup> 
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>      
     <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!--<SymbolPackageFormat>snupkg</SymbolPackageFormat>-->  <!-- using  snupkg the readme does not pack https://github.com/NuGet/Home/issues/10791 --> 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -43,15 +41,16 @@
     <RepositoryUrl>https://github.com/goswinr/FsEx.Wpf</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageIcon>logo128.png</PackageIcon>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile>READMEnuget.md</PackageReadmeFile>
     <PackageDescription>FsEx.Wpf is a collection of utilities for working with WPF in F#</PackageDescription>    
     <PackageTags>WPF F#</PackageTags>    
   </PropertyGroup>
 
 
   <ItemGroup>
-    <None Include="Doc/logo128.png" Pack="true" PackagePath="\" /> <!--PackagePath = "\" makes the fike availabe to nuget pack tool-->
-    <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="README.md" />   
+    <None Include="Doc/READMEnuget.md"  Pack="true" PackagePath="" />
+    <None Include="Doc/logo128.png" Pack="true" PackagePath="" /> <!--PackagePath = "" makes the file availabe to nuget pack tool-->
 
     <Compile Include="Src/Sync.fs" />
     <Compile Include="Src/SaveWriter.fs" />
