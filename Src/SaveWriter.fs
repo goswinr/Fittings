@@ -26,7 +26,7 @@ module internal Util =
 /// Optionally only once after a delay in which it might be called several times
 /// using Text.Encoding.UTF8
 type SaveReadWriter (path:string)= 
-    // similar class also exist in FsEx , FsEx.Wpf and Seff
+    // same class also exist in FsEx , TODO keep in sync!
    
     let counter = ref 0L // for atomic writing back to file
    
@@ -58,7 +58,7 @@ type SaveReadWriter (path:string)=
             lock lockObj (fun () -> // lock is using Monitor class : https://github.com/dotnet/fsharp/blob/6d91b3759affe3320e48f12becbbbca493574b22/src/fsharp/FSharp.Core/prim-types.fs#L4793
                 try  IO.File.WriteAllText(path,text, Text.Encoding.UTF8)
                 // try & with is needed because exceptions on threadpool cannot be caught otherwise !!
-                with ex ->  eprintfn "SaveWriter.WriteAsync failed with: %A \r\n while writing to %s:\r\n%A" ex path text // use %A to trimm long text        
+                with ex ->  eprintfn "FsEx.Wpf.SaveWriter.WriteAsync failed with: %A \r\n while writing to %s:\r\n%A" ex path text // use %A to trimm long text        
                 )       
             } |> Async.Start
 
@@ -70,7 +70,7 @@ type SaveReadWriter (path:string)=
             lock lockObj (fun () -> // lock is using Monitor class : https://github.com/dotnet/fsharp/blob/6d91b3759affe3320e48f12becbbbca493574b22/src/fsharp/FSharp.Core/prim-types.fs#L4793
                 try  IO.File.WriteAllLines(path,texts, Text.Encoding.UTF8)
                 // try & with is needed because exceptions on threadpool cannot be caught otherwise !!
-                with ex ->  eprintfn "SaveWriter.WriteAllLinesAsync failed with: %A \r\n while writing to %s:\r\n%A" ex path texts // use %A to trimm long text        
+                with ex ->  eprintfn "FsEx.Wpf.SaveWriter.WriteAllLinesAsync failed with: %A \r\n while writing to %s:\r\n%A" ex path texts // use %A to trimm long text        
                 )       
             } |> Async.Start
    
@@ -90,5 +90,5 @@ type SaveReadWriter (path:string)=
                     this.WriteAsync (text) // this should never fail since exeptions are caught inside 
                 with ex -> 
                     // try & with is needed because exceptions on threadpool cannot be caught otherwise !!
-                    eprintfn "SaveWriter.WriteIfLast: getText() for path (%s) failed with: %A" path ex                 
+                    eprintfn "FsEx.Wpf.SaveWriter.WriteIfLast: getText() for path (%s) failed with: %A" path ex                 
             } |> Async.StartImmediate   
