@@ -5,34 +5,26 @@ open System.Windows
 
 
 /// A class holding a resizable Window that remebers its position even after restarting.
-/// The appName in constructor will be used as Title and to save a settings.txt file in User's Appdata folder
-type PositionedWindow (appName:string) as this = 
+/// The path in settingsFile will be used to persist the position of this window in a txt file.
+type PositionedWindow (settingsFile:IO.FileInfo) as this = 
     inherit Windows.Window() 
-
-    let appFileName = 
-        if String.IsNullOrWhiteSpace appName then "Unnamed FsEX PositionedWindow"
-        else             
-            let mutable n = appName
-            for c in IO.Path.GetInvalidFileNameChars() do  n <- n.Replace(c, '_')
-            n  
-    
-    let settings = Settings(appFileName)
+        
+    let settings = Settings(settingsFile)
 
     /// the owning window
     let mutable owner = IntPtr.Zero
  
     let mutable setMaxAfterLoading = false
 
-    let mutable isMinOrMax = false     
-    
+    let mutable isMinOrMax = false  
+
     do       
-        if not (String.IsNullOrWhiteSpace appName) then base.Title <- appName // migth srtil have special signs
+        //if not (String.IsNullOrWhiteSpace appName) then base.Title <- appName // migth srtil have special signs
         base.ResizeMode  <- ResizeMode.CanResize  
              
         //-------------------------------------------------------------------------
         // -  all below code is for load and safe window location and size ---
-        //-------------------------------------------------------------------------
-        
+        //-------------------------------------------------------------------------        
         
         // (1) first restore normal size
         base.WindowStartupLocation <- WindowStartupLocation.Manual
@@ -95,18 +87,18 @@ type PositionedWindow (appName:string) as this =
             match this.WindowState with 
             | WindowState.Normal -> 
                 // because when Window is hosted in other App the restore from maximised does not remember the previous position automatically                
-                this.Top <-     settings.GetFloat "WindowTop"    0.0
-                this.Left <-    settings.GetFloat "WindowLeft"   0.0 
+                this.Top <-     settings.GetFloat "WindowTop"    100.0
+                this.Left <-    settings.GetFloat "WindowLeft"   100.0 
                 this.Height <-  settings.GetFloat "WindowHeight" 800.0
                 this.Width <-   settings.GetFloat "WindowWidth"  800.0
-                settings.SetBool  "WindowIsMax" false
+                settings.SetBool  "WindowIsMax" false  |> ignore 
                 isMinOrMax <- false
                 settings.Save ()
                 
             | WindowState.Maximized ->
                 // normally the state change event comes after the location change event but before size changed. async sleep in LocationChanged prevents this
                 isMinOrMax  <- true
-                settings.SetBool  "WindowIsMax" true
+                settings.SetBool  "WindowIsMax" true |> ignore 
                 settings.Save  ()    
                         
 
@@ -124,6 +116,21 @@ type PositionedWindow (appName:string) as this =
                 settings.Save ()                
             )
     
+    /// Creat from application name only
+    /// Settings will be saved in LocalApplicationData folder
+    /// Also sets window.Title to applicationName
+    new (applicationName:string) =    
+        let appName = 
+           let mutable n = applicationName
+           for c in IO.Path.GetInvalidFileNameChars() do  n <- n.Replace(c, '_')
+           n        
+        let appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
+        let p = IO.Path.Combine(appData,appName)
+        IO.Directory.CreateDirectory(p) |> ignore 
+        let f = IO.Path.Combine(p,"Settings.txt")
+        PositionedWindow(IO.FileInfo(f))        
+
+
     ///indicating if the Window is in Fullscreen mode or minimized mode (not normal mode)
     member this.IsMinOrMax = isMinOrMax
    

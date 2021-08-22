@@ -4,7 +4,7 @@
 open System
 open System.Threading
 
-
+(*
 module internal Util = 
     
     let maxCharsInString = 300
@@ -21,6 +21,7 @@ module internal Util =
             let st    = stringToTrim.Substring(0, maxCharsInString) 
             let last6 = stringToTrim.Substring(len-7) 
             sprintf "\"%s[..%d more Chars..]%s\"" st (len - maxCharsInString - 6) last6
+*)
 
 /// Reads and Writes with Lock, 
 /// Optionally only once after a delay in which it might be called several times
@@ -32,19 +33,23 @@ type SaveReadWriter (path:string)=
    
     let lockObj = new Object()
     
-    /// calls IO.File.Exists(path)
+    /// Calls IO.File.Exists(path)
     member this.FileExists() = IO.File.Exists(path)
 
+    /// The full file path
+    member this.Path : string  = path 
 
-    /// Save reading.
+    /// Thread Save reading.
     /// Ensures that no writing happens while reading.
+    /// May raise IO Exceptions
     member this.ReadAllText () : string =
         // lock is using Monitor class : https://github.com/dotnet/fsharp/blob/6d91b3759affe3320e48f12becbbbca493574b22/src/fsharp/FSharp.Core/prim-types.fs#L4793
         lock lockObj (fun () -> IO.File.ReadAllText(path, Text.Encoding.UTF8))            
             
 
-    /// Save reading.
+    /// Thread Save reading.
     /// Ensures that no writing happens while reading.
+    /// May raise IO Exceptions
     member this.ReadAllLines () : string[] =
         // lock is using Monitor class : https://github.com/dotnet/fsharp/blob/6d91b3759affe3320e48f12becbbbca493574b22/src/fsharp/FSharp.Core/prim-types.fs#L4793
         lock lockObj (fun () -> IO.File.ReadAllLines(path, Text.Encoding.UTF8))

@@ -2,47 +2,49 @@
 
 
 open System
+open System.Globalization
 open System.Text
 
  
-/// A class to save window size, layout and position,  and more Settings
-/// This class is usefull wenn in a hosted contex app.config does not work
-/// Values in txt file wil be sperated by  '=' . 
+/// A class to save window size, layout and position, and more Settings.
+/// This class is usefull when in a hosted contex app.config does not work.
+/// Keys may not contain the separator character, Values and keys may not contain a new line character
 /// Comments are not allowed
-type Settings (applicationName:string) =     
+/// Any errors are saved to this.Errors list.
+type Settings (settingsFile:IO.FileInfo, separator:char) = 
 
-    let appName = 
-        let mutable n = applicationName
-        for c in IO.Path.GetInvalidFileNameChars() do  n <- n.Replace(c, '_')
-        n
-
-    let  sep    = '=' // key value separator    
+    let  sep  = separator // key value separator    
+       
+    let writer = 
+        if not settingsFile.Directory.Exists then 
+            IO.Directory.CreateDirectory(settingsFile.DirectoryName)  |> ignore 
+        SaveReadWriter(settingsFile.FullName)
     
-    let filePath = 
-        let appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
-        let p = IO.Path.Combine(appData,appName)
-        IO.Directory.CreateDirectory(p) |> ignore 
-        let f = IO.Path.Combine(p,"Settings.txt")
-        f
-        
-    let writer = SaveReadWriter(filePath)
+    let errors = ResizeArray()
 
     let settingsDict = 
         let dict = new Collections.Concurrent.ConcurrentDictionary<string,string>()   
         try            
-            for ln in writer.ReadAllLines() do
-                match ln.Split(sep) with
-                | [|k;v|] -> dict.[k] <- v // TODO allow for comments? tricky because comments need to be saved back too
-                | _       -> eprintfn "Bad line in settings file file: '%s'" ln
+            for ln in writer.ReadAllLines() do                
+                match ln.IndexOf(sep) with
+                | -1 -> errors.Add(sprintf "Bad line in settings file file: '%s'" ln)
+                | i ->
+                    let k = ln.Substring(0,i)
+                    let v = ln.Substring(i+1)// + 1 to skip sep
+                    dict.[k] <- v // TODO allow for comments? tricky because comments need to be saved back too                
         with 
-            | :? IO.FileNotFoundException ->  () // eprintfn   "Settings file not found. (This is expected on first use of the App.)"
-            | e ->                            eprintfn  "Problem reading or initalizing settings file: %A"  e
+            | :? IO.FileNotFoundException ->  //Settings file not found. (This is expected on first use of the App.)"
+                // check if it can be created
+                try IO.File.WriteAllText(writer.Path,"")
+                with   e -> errors.Add(sprintf  "Settings file not found. Nor can it be created: %A"  e)                
+            | e ->  errors.Add(sprintf  "Problem reading or initalizing settings file: %A"  e)
+        
         dict    
 
     
     let settingsAsString () = 
         let sb = StringBuilder()
-        for KeyValue(k,v) in settingsDict do
+        for KeyValue(k,v) in settingsDict |> Seq.sortBy (fun (KeyValue(k,v)) -> k) do // sorted for better debugging
             sb.Append(k).Append(sep).AppendLine(v) |> ignore
         sb.ToString() 
     
@@ -51,46 +53,69 @@ type Settings (applicationName:string) =
          |true, v  ->  Some v
          |false, _ ->  None
     
+    let pfloat(s:string) def = match Double.TryParse(s)  with (true, v) -> v |(false,_) -> def
+    let pint  (s:string) def = match Int32.TryParse(s)   with (true, v) -> v |(false,_) -> def
+    let pbool (s:string) def = match Boolean.TryParse(s) with (true, v) -> v |(false,_) -> def
 
-    let getFloat  key def = match get key with Some v -> float v           | None -> def
-    let getInt    key def = match get key with Some v -> int v             | None -> def
-    let getBool   key def = match get key with Some v -> Boolean.Parse v   | None -> def    
+    let getFloat  key def = match get key with Some v -> pfloat v def  | None -> def
+    let getInt    key def = match get key with Some v -> pint v def    | None -> def
+    let getBool   key def = match get key with Some v -> pbool v def   | None -> def 
+
     
-    /// Save setting with a delay
-    /// delayed because the onMaximise of window event triggers first Loaction changed and then state changed, 
-    /// state change event should still be able to Get previous size and loaction that is not saved yet
+    /// A class to save window size, layout and position,  and more Settings
+    /// This class is usefull wenn in a hosted contex app.config does not work
+    /// Values in txt file wil be sperated by  '=' . 
+    /// Comments are not allowed
+    new (settingsFile:IO.FileInfo) =     
+        Settings (settingsFile, '=')
+           
+
+    /// Save setting with a delay.
+    /// Delayed because the onMaximise of window event triggers first Loaction changed and then state changed, 
+    /// State change event should still be able to Get previous size and loaction that is not saved yet
     /// call Save() afterwards
     member this.SetDelayed k v (delay:int)=         
         async{  do! Async.Sleep(delay) 
                 settingsDict.[k] <- v         
                 } |> Async.Start
     
-    /// Add string value to Setting dict
-    /// String must be a single line 
-    /// leading an trailing whitespace will be trimmed both on key and value upon retrival, not upon writing
-    /// values will be separated by '='
-    /// comments care not allowed.
+    /// Add string value to the Concurrent settings Dictionary. 
+    /// Keys may not contain the separator character, Values and keys may not contain a new line character.  
+    /// If they do it will be replaced by empty string. and false will be returned
+    /// Comments care not allowed.
     /// call this.Save() afterwards to write to file in appdata folder
-    member this.Set (k:string) (v:string) = 
-        if    k.IndexOf(sep) > -1 then 
-            eprintf  "Settings key shall not contain '%c' : key'%s' value'%s'"  sep  k  v 
-            settingsDict.[k.Replace("=","")] <- v.Replace("=","")   
-        elif  v.IndexOf(sep) > -1 then 
-            eprintf  "Settings value shall not contain '%c' : key'%s' value'%s'"  sep  k  v
-            settingsDict.[k.Replace("=","")] <- v.Replace("=","")   
-        else 
-            settingsDict.[k] <- v             
+    /// Returns false if k
+    member this.Set (key:string) (value:string) :bool =
+        let mutable k = key 
+        let mutable v = value
+        let mutable ok = true
+        if k.IndexOf(sep)  > -1 then k<-k.Replace(string sep,"") ; ok <- false; errors.Add(sprintf "separator in key:%s" key)
+        if k.IndexOf('\r') > -1 then k<-k.Replace("\r"      ,"") ; ok <- false; errors.Add(sprintf "newline in key:%s" key)
+        if k.IndexOf('\n') > -1 then k<-k.Replace("\n"      ,"") ; ok <- false; errors.Add(sprintf "newline in key:%s" key)
+        if v.IndexOf('\r') > -1 then v<-v.Replace("\r"      ,"") ; ok <- false; errors.Add(sprintf "newline in value:%s" value)
+        if v.IndexOf('\n') > -1 then v<-v.Replace("\n"      ,"") ; ok <- false; errors.Add(sprintf "newline in value:%s" value)
+        settingsDict.[k] <- v  
+        ok
         
-    /// get String value from settings
+    /// Get String value from settings
     member this.Get k = get k        
 
-    /// Write to Settings.txt file in appdata folder
+    /// Write to Settings to  file in specified in constructor
+    /// Writes after a delay of 250 ms if there was no more recent call to write.
     member this.Save () =                       
-        writer.WriteIfLast (settingsAsString,  500)
-        
-    member this.SetFloat        key (v:float)       = this.Set key (string v)
+        writer.WriteIfLast (settingsAsString,  250)
 
-    member this.SetFloatDelayed key (v:float) delay = this.SetDelayed key (string v) delay
+    /// Using maximum digits of preciscion 
+    member this.SetFloatHighPrec        key (v:float)       = this.Set key (v.ToString("0.#",CultureInfo.InvariantCulture)) // InvariantCulture to not mess up , and .
+    
+    /// Using just one digit after zero for preciscion 
+    member this.SetFloat        key (v:float)       = this.Set key (v.ToString("0.#",CultureInfo.InvariantCulture)) // InvariantCulture to not mess up , and .
+    
+    /// Save floatt to dict after a delay.
+    /// Using just one digit after zero for preciscion    
+    /// A delay is usefull e.g. because the onMaximise of window event triggers first Loaction changed and then state changed, 
+    /// State change event should still be able to Get previous size and loaction that is not saved yet
+    member this.SetFloatDelayed key (v:float) delay = this.SetDelayed key (v.ToString("0.#",CultureInfo.InvariantCulture)) delay // InvariantCulture to not mess up , and .
 
     member this.SetInt          key (v:int)         = this.Set key (string v)
 
@@ -101,4 +126,7 @@ type Settings (applicationName:string) =
     member this.GetInt          key def = getInt   key def
 
     member this.GetBool         key def = getBool  key def
+
+    /// Any Errors are saved in this list, not raised
+    member this.Errors = Error
     
