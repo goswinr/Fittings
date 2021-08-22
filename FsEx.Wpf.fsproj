@@ -45,7 +45,11 @@
     <PackageDescription>FsEx.Wpf is a collection of utilities for working with WPF in F#</PackageDescription>    
     <PackageTags>WPF F#</PackageTags>    
   </PropertyGroup>
-
+ 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.*" PrivateAssets="All" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+    <!-- https://docs.microsoft.com/en-us/nuget/consume-packages/package-references-in-project-files#controlling-dependency-assets -->
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="README.md" />   
