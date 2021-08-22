@@ -20,7 +20,7 @@ type Settings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->uni
     
     let settingsDict = 
         let dict = new Collections.Concurrent.ConcurrentDictionary<string,string>()   
-        if writer.CreateFileIfMissing() then //errors get  logged //for case when Settings file is not found. (This is expected on first use of the App.)"                       
+        if writer.CreateFileIfMissing("") then //errors get  logged //for case when Settings file is not found. (This is expected on first use of the App.)"                       
             match writer.ReadAllLines() with 
             |None -> () //errors get logged
             |Some lns ->
