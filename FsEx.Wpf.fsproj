@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">   
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net472</TargetFrameworks>  
+    <TargetFrameworks>net472;net50-windows</TargetFrameworks>  
     <UseWPF>true</UseWPF>    
     <LangVersion>preview</LangVersion>
     
@@ -49,10 +49,12 @@
 
   <ItemGroup>
     <None Include="README.md" />   
-    <None Include="Doc/READMEnuget.md"  Pack="true" PackagePath="" />
+    <None Include="Doc/READMEnuget.md" Pack="true" PackagePath="" />
     <None Include="Doc/logo128.png" Pack="true" PackagePath="" /> <!--PackagePath = "" makes the file availabe to nuget pack tool-->
 
     <Compile Include="Src/Sync.fs" />
+
+    <Compile Include="Src\TextBlockSelectable.fs" />
     <Compile Include="Src/SaveWriter.fs" />
     <Compile Include="Src/Settings.fs" />
     <Compile Include="Src/Command.fs" />
