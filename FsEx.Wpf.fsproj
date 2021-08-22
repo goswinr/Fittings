@@ -17,9 +17,9 @@
     <Product>FsEx.Wpf</Product>
     <PackageId>FsEx.Wpf</PackageId>  
 
-    <Version>0.1.0.0</Version>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
-    <FileVersion>0.1.0.0</FileVersion>
+    <Version>0.0.1</Version>
+    <AssemblyVersion>0.0.1</AssemblyVersion>
+    <FileVersion>0.0.1</FileVersion>
     <PackageReleaseNotes>First release</PackageReleaseNotes>
     
     <Authors>GoswinR</Authors>
@@ -33,7 +33,7 @@
  <PropertyGroup> 
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>      
     <IncludeSymbols>true</IncludeSymbols>
-    <!--<SymbolPackageFormat>snupkg</SymbolPackageFormat>-->  <!-- using  snupkg the readme does not pack https://github.com/NuGet/Home/issues/10791 --> 
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat> 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -41,7 +41,7 @@
     <RepositoryUrl>https://github.com/goswinr/FsEx.Wpf</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageIcon>logo128.png</PackageIcon>
-    <PackageReadmeFile>READMEnuget.md</PackageReadmeFile>
+    <!--<PackageReadmeFile>READMEnuget.md</PackageReadmeFile>--> <!-- using  snupkg the readme does not pack https://github.com/NuGet/Home/issues/10791 --> 
     <PackageDescription>FsEx.Wpf is a collection of utilities for working with WPF in F#</PackageDescription>    
     <PackageTags>WPF F#</PackageTags>    
   </PropertyGroup>
@@ -54,7 +54,7 @@
 
     <Compile Include="Src/Sync.fs" />
 
-    <Compile Include="Src\TextBlockSelectable.fs" />
+    <Compile Include="Src/TextBlockSelectable.fs" />
     <Compile Include="Src/SaveWriter.fs" />
     <Compile Include="Src/Settings.fs" />
     <Compile Include="Src/Command.fs" />
