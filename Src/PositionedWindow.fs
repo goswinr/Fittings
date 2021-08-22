@@ -6,10 +6,10 @@ open System.Windows
 
 /// A class holding a resizable Window that remebers its position even after restarting.
 /// The path in settingsFile will be used to persist the position of this window in a txt file.
-type PositionedWindow (settingsFile:IO.FileInfo) as this = 
+type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as this = 
     inherit Windows.Window() 
         
-    let settings = Settings(settingsFile)
+    let settings = Settings(settingsFile,errorLogger)
 
     /// the owning window
     let mutable owner = IntPtr.Zero
@@ -28,10 +28,10 @@ type PositionedWindow (settingsFile:IO.FileInfo) as this =
         
         // (1) first restore normal size
         base.WindowStartupLocation <- WindowStartupLocation.Manual
-        let winTop    = settings.GetFloat "WindowTop"    0.0
-        let winLeft   = settings.GetFloat "WindowLeft"   0.0 
-        let winHeight = settings.GetFloat "WindowHeight" 800.0
-        let winWidth  = settings.GetFloat "WindowWidth"  800.0
+        let winTop    = settings.GetFloat ("WindowTop"    , 100.0  )
+        let winLeft   = settings.GetFloat ("WindowLeft"   , 100.0  )
+        let winHeight = settings.GetFloat ("WindowHeight" , 800.0  )
+        let winWidth  = settings.GetFloat ("WindowWidth"  , 800.0  )
 
         //let maxW = float <| Array.sumBy (fun (sc:Forms.Screen) -> sc.WorkingArea.Width)  Forms.Screen.AllScreens  // needed for dual screens ?, needs wins.forms
         //let maxH = float <| Array.sumBy (fun (sc:Forms.Screen) -> sc.WorkingArea.Height) Forms.Screen.AllScreens // https://stackoverflow.com/questions/37927011/in-wpf-how-to-shift-a-win-onto-the-screen-if-it-is-off-the-screen/37927012#37927012
@@ -47,7 +47,7 @@ type PositionedWindow (settingsFile:IO.FileInfo) as this =
         base.Width <-   winWidth
 
         // (2) only now set the maximise flag or correct position if off the screen
-        if settings.GetBool "WindowIsMax" false then
+        if settings.GetBool ("WindowIsMax", false) then
             //base.WindowState <- WindowState.Maximized // always puts it on first screen, do in loaded event instead
             setMaxAfterLoading <- true            
             isMinOrMax  <- true
@@ -76,8 +76,8 @@ type PositionedWindow (settingsFile:IO.FileInfo) as this =
                 do! Async.Sleep 200 // so that StateChanged event comes first
                 if this.WindowState = WindowState.Normal &&  not isMinOrMax then 
                     if this.Top > -500. && this.Left > -500. then // to not save on minimizing on minimized: Top=-32000 Left=-32000 
-                        settings.SetFloatDelayed "WindowTop"  this.Top  100 // get float in statechange maximised needs to access this before 350 ms pass
-                        settings.SetFloatDelayed "WindowLeft" this.Left 100
+                        settings.SetFloatDelayed ("WindowTop"  ,this.Top  ,100) // get float in statechange maximised needs to access this before 350 ms pass
+                        settings.SetFloatDelayed ("WindowLeft" ,this.Left ,100)
                         settings.Save ()
                 }
                 |> Async.StartImmediate
@@ -87,18 +87,18 @@ type PositionedWindow (settingsFile:IO.FileInfo) as this =
             match this.WindowState with 
             | WindowState.Normal -> 
                 // because when Window is hosted in other App the restore from maximised does not remember the previous position automatically                
-                this.Top <-     settings.GetFloat "WindowTop"    100.0
-                this.Left <-    settings.GetFloat "WindowLeft"   100.0 
-                this.Height <-  settings.GetFloat "WindowHeight" 800.0
-                this.Width <-   settings.GetFloat "WindowWidth"  800.0
-                settings.SetBool  "WindowIsMax" false  |> ignore 
+                this.Top <-     settings.GetFloat ("WindowTop"    , 100.0 )
+                this.Left <-    settings.GetFloat ("WindowLeft"   , 100.0 ) 
+                this.Height <-  settings.GetFloat ("WindowHeight" , 800.0 )
+                this.Width <-   settings.GetFloat ("WindowWidth"  , 800.0 )
+                settings.SetBool  ("WindowIsMax", false)  |> ignore 
                 isMinOrMax <- false
                 settings.Save ()
                 
             | WindowState.Maximized ->
                 // normally the state change event comes after the location change event but before size changed. async sleep in LocationChanged prevents this
                 isMinOrMax  <- true
-                settings.SetBool  "WindowIsMax" true |> ignore 
+                settings.SetBool ("WindowIsMax", true) |> ignore 
                 settings.Save  ()    
                         
 
@@ -111,15 +111,15 @@ type PositionedWindow (settingsFile:IO.FileInfo) as this =
 
         this.SizeChanged.Add (fun e -> // does no get trigger on maximising 
             if this.WindowState = WindowState.Normal &&  not isMinOrMax  then 
-                settings.SetFloatDelayed "WindowHeight" this.Height 100
-                settings.SetFloatDelayed "WindowWidth"  this.Width  100
+                settings.SetFloatDelayed ("WindowHeight", this.Height, 100 )
+                settings.SetFloatDelayed ("WindowWidth" , this.Width , 100 )
                 settings.Save ()                
             )
     
     /// Creat from application name only
     /// Settings will be saved in LocalApplicationData folder
     /// Also sets window.Title to applicationName
-    new (applicationName:string) =    
+    new (applicationName:string, errorLogger:string->unit) =    
         let appName = 
            let mutable n = applicationName
            for c in IO.Path.GetInvalidFileNameChars() do  n <- n.Replace(c, '_')
@@ -128,7 +128,7 @@ type PositionedWindow (settingsFile:IO.FileInfo) as this =
         let p = IO.Path.Combine(appData,appName)
         IO.Directory.CreateDirectory(p) |> ignore 
         let f = IO.Path.Combine(p,"Settings.txt")
-        PositionedWindow(IO.FileInfo(f))        
+        PositionedWindow(IO.FileInfo(f),errorLogger)        
 
 
     ///indicating if the Window is in Fullscreen mode or minimized mode (not normal mode)
