@@ -26,7 +26,7 @@ module internal Help =
 /// Reads and Writes with Lock, 
 /// Optionally only once after a delay in which it might be called several times
 /// using Text.Encoding.UTF8
-/// Writes Exceptions to errorLogger 
+/// Writes Exceptions to errorLogger because it is tricky to catch exceptions form an async thread
 type SaveReadWriter (path:string, errorLogger:string->unit)= 
     // same class also exist in FsEx , TODO keep in sync!
    
