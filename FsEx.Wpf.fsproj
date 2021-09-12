@@ -66,6 +66,7 @@
     <Compile Include="Src/DependencyProps.fs" />
     <Compile Include="Src/ErrorHandeling.fs" />
     <Compile Include="Src/PositionedWindow.fs" />
+    <Compile Include="Src\WindowOnnewThread.fs" />
   </ItemGroup>
 
 </Project>
