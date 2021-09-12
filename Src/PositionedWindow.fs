@@ -53,15 +53,15 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
             isMinOrMax  <- true
 
         elif  winTop  < -offTolerance || winHeight + winTop  > maxH then 
-            eprintfn "FsEx.Wpf.PositionedWindow:Could not restore previous Window position:"
-            eprintfn "FsEx.Wpf.PositionedWindow: winTopPosition: %.1f  + winHeight: %.1f  = %.1f that is bigger than maxH: %.1f + %.1f tolerance" winTop winHeight   ( winHeight + winTop ) SystemParameters.VirtualScreenHeight offTolerance
+            errorLogger "FsEx.Wpf.PositionedWindow:Could not restore previous Window position:"
+            errorLogger (sprintf "FsEx.Wpf.PositionedWindow: winTopPosition: %.1f  + winHeight: %.1f  = %.1f that is bigger than maxH: %.1f + %.1f tolerance" winTop winHeight   ( winHeight + winTop ) SystemParameters.VirtualScreenHeight offTolerance )
             base.WindowStartupLocation <- WindowStartupLocation.CenterScreen                
             base.Height <- 600.0                
             base.Width  <- 600.0
 
         elif winLeft < -offTolerance || winWidth  + winLeft > maxW then
-            eprintfn "FsEx.Wpf.PositionedWindow: Could not restore previous Window position:"
-            eprintfn "FsEx.Wpf.PositionedWindow: winLeftPosition: %.1f  + winWidth: %.1f = %.1f that is bigger than maxW: %.1f + %.1f tolerance" winLeft winWidth ( winWidth +  winLeft) SystemParameters.VirtualScreenWidth offTolerance
+            errorLogger "FsEx.Wpf.PositionedWindow: Could not restore previous Window position:"
+            errorLogger <| sprintf "FsEx.Wpf.PositionedWindow: winLeftPosition: %.1f  + winWidth: %.1f = %.1f that is bigger than maxW: %.1f + %.1f tolerance" winLeft winWidth ( winWidth +  winLeft) SystemParameters.VirtualScreenWidth offTolerance
             base.WindowStartupLocation <- WindowStartupLocation.CenterScreen
             base.Height <- 600.0                
             base.Width  <- 600.0
