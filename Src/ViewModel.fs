@@ -9,21 +9,21 @@ open System.ComponentModel
 
 
 
-module ViewModel =  
+module ViewModel = 
 
       /// A base class for a viewmodel implementing INotifyPropertyChanged
     type ViewModelBase() = 
         // alternative: http://www.fssnip.net/4Q/title/F-Quotations-with-INotifyPropertyChanged
         let ev = new Event<_, _>()
-    
+
         interface INotifyPropertyChanged with
             [<CLIEvent>]
             member x.PropertyChanged = ev.Publish
 
-        /// use nameof operator on members to provide the string reqired 
+        /// use nameof operator on members to provide the string reqired
         /// member x.Val
         ///    with get()  = val
         ///    and set(v)  = val <- v; x.OnPropertyChanged(nameof x.Val)
         member x.OnPropertyChanged(propertyName : string) = 
-            ev.Trigger(x, new PropertyChangedEventArgs(propertyName))  
-     
+            ev.Trigger(x, new PropertyChangedEventArgs(propertyName))
+
