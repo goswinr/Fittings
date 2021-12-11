@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net472;net50-windows</TargetFrameworks>
+    <TargetFrameworks>net472;net5.0-windows;net6.0-windows</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <LangVersion>preview</LangVersion>
 
@@ -22,7 +22,7 @@
     <FileVersion>0.0.3</FileVersion>
     <PackageReleaseNotes>
       0.0.3:
-      -restructure Global Error Handeling
+      -restructure Global Error Handling
     </PackageReleaseNotes>
 
     <Authors>GoswinR</Authors>
@@ -36,7 +36,7 @@
  <PropertyGroup>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!-- <SymbolPackageFormat>snupkg</SymbolPackageFormat>    -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -44,7 +44,7 @@
     <RepositoryUrl>https://github.com/goswinr/FsEx.Wpf</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageIcon>logo128.png</PackageIcon>
-    <!--<PackageReadmeFile>READMEnuget.md</PackageReadmeFile>--> <!-- using  snupkg the readme does not pack https://github.com/NuGet/Home/issues/10791 -->
+    <PackageReadmeFile>READMEnuget.md</PackageReadmeFile> <!-- using  snupkg the readme does not pack https://github.com/NuGet/Home/issues/10791 -->
     <PackageDescription>FsEx.Wpf is a collection of utilities for working with WPF in F#</PackageDescription>
     <PackageTags>WPF F#</PackageTags>
   </PropertyGroup>
@@ -56,8 +56,8 @@
 
   <ItemGroup>
     <None Include="README.md" />
-    <!--<None Include="Doc/READMEnuget.md" Pack="true" PackagePath="" />-->
-    <None Include="Doc/logo128.png" Pack="true" PackagePath="" /> <!--PackagePath = "" makes the file availabe to nuget pack tool-->
+    <None Include="Doc/READMEnuget.md" Pack="true" PackagePath="" />
+    <None Include="Doc/logo128.png" Pack="true" PackagePath="" /> <!--PackagePath = "" makes the file available to nuget pack tool-->
 
     <Compile Include="Src/Sync.fs" />
 

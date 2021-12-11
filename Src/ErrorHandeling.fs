@@ -5,9 +5,10 @@ open System.Windows
 open System.Runtime.InteropServices
 open System.ComponentModel
 
+#nowarn "44" //This construct is deprecated. Recovery from corrupted process state exceptions is not supported; HandleProcessCorruptedStateExceptionsAttribute is ignored.
 
 
-/// A class to provide an Error Handler that can catch currupted state or access violation errors frim FSI threads too
+/// A class to provide an Error Handler that can catch corrupted state or access violation errors from FSI threads too
 type ProcessCorruptedState(applicationName:string, appendText:unit->string) = 
     
     let desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
@@ -18,7 +19,8 @@ type ProcessCorruptedState(applicationName:string, appendText:unit->string) =
         n
 
     [< Security.SecurityCritical >]//to handle AccessViolationException too
-    [< Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions >] //https://stackoverflow.com/questions/3469368/how-to-handle-accessviolationexception/4759831
+    [< Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions >] //https://stackoverflow.com/questions/3469368/how-to-handle-accessviolationexception/4759831 
+    //NET 6.0: This construct is deprecated. Recovery from corrupted process state exceptions is not supported; HandleProcessCorruptedStateExceptionsAttribute is ignored.
     member this.Handler (sender:obj) (e: UnhandledExceptionEventArgs) :unit= 
             // Starting with the .NET Framework 4, this event is not raised for exceptions that corrupt the state of the process,
             // such as stack overflows or access violations, unless the event handler is security-critical and has the HandleProcessCorruptedStateExceptionsAttribute attribute.
@@ -46,8 +48,8 @@ type ProcessCorruptedState(applicationName:string, appendText:unit->string) =
 
 
 /// To set up global AppDomain.CurrentDomain.UnhandledException.Handler
-/// A class to provide an Error Handler that can catch currupted state 
-/// or access violation errors frim FSI threads too
+/// A class to provide an Error Handler that can catch corrupted state 
+/// or access violation errors from FSI threads too
 /// (applicationName) for name to be displayed
 /// (appendText:unit->string) to get additional text to add to the error message
 type ErrorHandeling(applicationName:string, appendText:unit->string)  = 
@@ -74,7 +76,7 @@ type ErrorHandeling(applicationName:string, appendText:unit->string)  =
                             eprintfn "%s" (ProcessCorruptedState.getWin32Errors())
                             e.Handled<- true
                         else
-                            eprintfn "%s:Application.Current.DispatcherUnhandledException in main Thread: *null* Exception Obejct" applicationName
+                            eprintfn "%s:Application.Current.DispatcherUnhandledException in main Thread: *null* Exception Object" applicationName
                             eprintfn "%s" (ProcessCorruptedState.getWin32Errors())
                     else
                         print <- false
@@ -82,7 +84,7 @@ type ErrorHandeling(applicationName:string, appendText:unit->string)  =
                         eprintfn "\r\n\r\n   *** LOGGING STOPPED. CLEAR LOG FIRST TO START PRINTING AGAIN *** "
                          )
 
-        //catching unhandled exceptions generated from all threads running under the context of a specific application domain.
+        //catching un-handled exceptions generated from all threads running under the context of a specific application domain.
         //https://dzone.com/articles/order-chaos-handling-unhandled
         //https://stackoverflow.com/questions/14711633/my-c-sharp-application-is-returning-0xe0434352-to-windows-task-scheduler-but-it
 
