@@ -2,7 +2,8 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net472;net5.0-windows;net6.0-windows</TargetFrameworks>
+    <!-- <TargetFrameworks>net472;net5.0-windows;net6.0-windows</TargetFrameworks> -->
+    <TargetFrameworks>net472;net5.0-windows</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <LangVersion>preview</LangVersion>
 
