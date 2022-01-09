@@ -32,7 +32,7 @@ type ProcessCorruptedState(applicationName:string, appendText:unit->string) =
             let filename = sprintf "%s-FsEx.Wpf-UnhandledException-%s.txt" appName time
             let file = IO.Path.Combine(desktop,filename)
             let win32Err = ProcessCorruptedState.getWin32Errors()
-            let err = sprintf "%s:ProcessCorruptedState Special Handler: AppDomain.CurrentDomain.UnhandledException: \r\nisTerminating: %b : \r\ntime: %s\r\n\r\n%A\r\n\r\n%s\r\n%s" applicationName e.IsTerminating time e.ExceptionObject (appendText()) win32Err
+            let err = sprintf "%s:ProcessCorruptedState Special Handler: AppDomain.CurrentDomain.UnhandledException: \r\n isTerminating: %b : \r\n time: %s \r\n\r\n%A \r\n\r\n%s \r\n\r\n%s" applicationName e.IsTerminating time e.ExceptionObject (appendText()) win32Err
 
             try IO.File.WriteAllText(file, err) with _ -> () // file might be open and locked
             eprintfn "%s" err
