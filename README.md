@@ -7,7 +7,7 @@
 ![code size](https://img.shields.io/github/languages/code-size/goswinr/FsEx.Wpf.svg) 
 [![license](https://img.shields.io/github/license/goswinr/FsEx.Wpf)](LICENSE)
 
-![Logo](https://raw.githubusercontent.com/goswinr/FsEx.Wpf/main/Doc/logo.png)
+![Logo](https://raw.githubusercontent.com/goswinr/FsEx.Wpf/main/Doc/logo128.png)
 
 FsEx.Wpf is a collection of utilities for working with WPF in F#. It has
 * A persistent Window class that will remember its size and position on screen after each change.
