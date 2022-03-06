@@ -118,5 +118,15 @@ type Settings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->uni
 
     member this.GetBool         (key, def)  = getBool  key def
 
+    /// Also saves the default value to the settings if not found
+    member this.GetFloatSaveDefault        (key, def)  = match get key with Some v -> pfloat v def  | None -> this.SetFloatHighPrec(key, def); this.Save(); def
+    
+    /// Also saves the default value to the settings if not found
+    member this.GetIntSaveDefault           (key, def)  = match get key with Some v -> pint v def    | None -> this.SetInt(key, def);this.Save();def
+    
+    /// Also saves the default value to the settings if not found
+    member this.GetBoolSaveDefault          (key, def)  = match get key with Some v -> pbool v def   | None -> this.SetBool(key, def);this.Save();def
 
 
+    /// Also saves the default value to the settings if not found
+    member this.GetSaveDefault          (key, def)  = match get key with Some v ->  v  | None -> this.Set(key, def);this.Save();def

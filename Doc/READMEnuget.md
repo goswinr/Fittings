@@ -16,6 +16,10 @@ FsEx.Wpf is a collection of utilities for working with WPF in F#. It has
 [MIT](https://raw.githubusercontent.com/goswinr/FsEx.Wpf/main/LICENSE.txt)
 
 ### Changelog
-    
+
+`0.2.0` 
+- more functionality on Setting serialization API
+  
 `0.1.0` 
 - first public release
+
