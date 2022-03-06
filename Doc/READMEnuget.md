@@ -3,7 +3,6 @@
 
 ![code size](https://img.shields.io/github/languages/code-size/goswinr/FsEx.Wpf.svg) 
 [![license](https://img.shields.io/github/license/goswinr/FsEx.Wpf)](LICENSE)
-[![FsEx.Wpf on fuget.org](https://www.fuget.org/packages/FsEx.Wpf/badge.svg)](https://www.fuget.org/packages/FsEx.Wpf)
 
 ![Logo](https://raw.githubusercontent.com/goswinr/FsEx.Wpf/main/Doc/logo128.png)
 
