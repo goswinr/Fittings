@@ -9,7 +9,7 @@ module internal Help =
     let maxCharsInString = 500
 
     /// If the input string is longer than maxChars + 20 then
-    /// it returns the input string trimmed to maxChars, a count of skiped characters and the last 6 characters (all enclosed in double quotes ")
+    /// it returns the input string trimmed to maxChars, a count of skipped characters and the last 6 characters (all enclosed in double quotes ")
     /// e.g. "abcde[..20 more Chars..]xyz"
     /// Else, if the input string is less than maxChars + 20, it is still returned in full (enclosed in double quotes ").
     /// also see String.truncatedFormated
@@ -28,7 +28,7 @@ module internal Help =
 /// using Text.Encoding.UTF8
 /// Writes Exceptions to errorLogger because it is tricky to catch exceptions form an async thread
 type SaveReadWriter (path:string, errorLogger:string->unit)= 
-    // same class also exist in FsEx , TODO keep in sync!
+    // same class also exist in FsEx , TODO keep in sync! https://github.com/goswinr/FsEx/blob/main/Src/IO.fs#L155
 
     let counter = ref 0L // for atomic writing back to file
 
@@ -90,7 +90,7 @@ type SaveReadWriter (path:string, errorLogger:string->unit)=
             lock lockObj (fun () -> // lock is using Monitor class : https://github.com/dotnet/fsharp/blob/6d91b3759affe3320e48f12becbbbca493574b22/src/fsharp/FSharp.Core/prim-types.fs#L4793
                 try  IO.File.WriteAllText(path,text, Text.Encoding.UTF8)
                 // try & with is needed because exceptions on threadpool cannot be caught otherwise !!
-                with ex ->  errorLogger(sprintf "FsEx.Wpf.SaveWriter.WriteAsync failed with: %A \r\n while writing to %s:\r\n%A" ex path (Help.truncateString text)) // use %A to trimm long text
+                with ex ->  errorLogger(sprintf "FsEx.Wpf.SaveWriter.WriteAsync failed with: %A \r\n while writing to %s:\r\n%A" ex path (Help.truncateString text)) // use %A to trim long text
                 )
             } |> Async.Start
 
@@ -102,7 +102,7 @@ type SaveReadWriter (path:string, errorLogger:string->unit)=
             lock lockObj (fun () -> // lock is using Monitor class : https://github.com/dotnet/fsharp/blob/6d91b3759affe3320e48f12becbbbca493574b22/src/fsharp/FSharp.Core/prim-types.fs#L4793
                 try  IO.File.WriteAllLines(path,texts, Text.Encoding.UTF8)
                 // try & with is needed because exceptions on threadpool cannot be caught otherwise !!
-                with ex ->  errorLogger(sprintf "FsEx.Wpf.SaveWriter.WriteAllLinesAsync failed with: %A \r\n while writing to %s:\r\n%A" ex path (Array.truncate 20 texts)) // use %A to trimm long text
+                with ex ->  errorLogger(sprintf "FsEx.Wpf.SaveWriter.WriteAllLinesAsync failed with: %A \r\n while writing to %s:\r\n%A" ex path (Array.truncate 20 texts)) // use %A to trim long text
                 )
             } |> Async.Start
 
@@ -115,11 +115,11 @@ type SaveReadWriter (path:string, errorLogger:string->unit)=
     member this.WriteIfLast ( getText: unit->string, delayMillisSeconds:int) = 
         async{
             let k = Interlocked.Increment counter
-            do! Async.Sleep(delayMillisSeconds) // delay to see if this is the last of many events (otherwise there is a noticable lag in dragging window around, for example, when saving window position)
+            do! Async.Sleep(delayMillisSeconds) // delay to see if this is the last of many events (otherwise there is a noticeable lag in dragging window around, for example, when saving window position)
             if !counter = k then //k > 2L &&   //do not save on startup && only save last event after a delay if there are many save events in a row ( eg from window size change)(ignore first two event from creating window)
                 try
                     let text = getText()
-                    this.WriteAsync (text) // this should never fail since exeptions are caught inside
+                    this.WriteAsync (text) // this should never fail since exceptions are caught inside
                 with ex ->
                     // try & with is needed because exceptions on threadpool cannot be caught otherwise !!
                     errorLogger(sprintf "FsEx.Wpf.SaveWriter.WriteIfLast: getText() for path '%s' failed with: %A" path ex )

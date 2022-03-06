@@ -5,7 +5,7 @@ open System.Globalization
 open System.Text
 
 /// A class to save window size, layout and position, and more Settings.
-/// This class is usefull when in a hosted contex app.config does not work.
+/// This class is useful when in a hosted context app.config does not work.
 /// Keys may not contain the separator character, Values and keys may not contain a new line character
 /// Comments are not allowed
 /// Any errors are saved to this.Errors list.
@@ -26,7 +26,7 @@ type Settings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->uni
             |Some lns ->
                 for ln in lns do
                     match ln.IndexOf(sep) with
-                    | -1 -> errorLogger (sprintf "Bad line in settings file file: '%s'" ln)
+                    | -1 -> errorLogger (sprintf "Bad line in settings file: '%s'" ln)
                     | i ->
                         let k = ln.Substring(0,i)
                         let v = ln.Substring(i+1)// + 1 to skip sep
@@ -55,16 +55,16 @@ type Settings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->uni
 
 
     /// A class to save window size, layout and position,  and more Settings
-    /// This class is usefull wenn in a hosted contex app.config does not work
-    /// Values in txt file wil be sperated by  '=' .
+    /// This class is useful when in a hosted context app.config does not work
+    /// Values in txt file will be separated by  '=' .
     /// Comments are not allowed
     new (settingsFile:IO.FileInfo, errorLogger:string->unit) = 
         Settings (settingsFile, '=', errorLogger)
 
 
     /// Save setting with a delay.
-    /// Delayed because the onMaximise of window event triggers first Loaction changed and then state changed,
-    /// State change event should still be able to Get previous size and loaction that is not saved yet
+    /// Delayed because the onMaximise of window event triggers first location changed and then state changed,
+    /// State change event should still be able to Get previous size and location that is not saved yet
     /// call Save() afterwards
     member this.SetDelayed (k, v , delay:int)= 
         async{  do! Async.Sleep(delay)
@@ -96,16 +96,16 @@ type Settings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->uni
     member this.Save () = 
         writer.WriteIfLast (settingsAsString,  250)
 
-    /// Using maximum digits of preciscion
+    /// Using maximum digits of precision
     member this.SetFloatHighPrec (key, v:float)      = this.Set (key ,v.ToString("0.#",CultureInfo.InvariantCulture)) // InvariantCulture to not mess up , and .
 
-    /// Using just one digit after zero for preciscion
+    /// Using just one digit after zero for precision
     member this.SetFloat         (key,v:float)       = this.Set (key,v.ToString("0.#",CultureInfo.InvariantCulture)) // InvariantCulture to not mess up , and .
 
     /// Save float to dict after a delay.
-    /// Using just one digit after zero for preciscion
-    /// A delay is usefull e.g. because the onMaximise of window event triggers first Loaction changed and then state changed,
-    /// State change event should still be able to Get previous size and loaction that is not saved yet
+    /// Using just one digit after zero for precision
+    /// A delay is useful e.g. because the onMaximise of window event triggers first Location changed and then state changed,
+    /// State change event should still be able to Get previous size and location that is not saved yet
     member this.SetFloatDelayed (key ,v:float, delay) = this.SetDelayed (key ,v.ToString("0.#",CultureInfo.InvariantCulture), delay) // InvariantCulture to not mess up , and .
 
     member this.SetInt          (key ,v:int)         = this.Set (key ,string v)

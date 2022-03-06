@@ -11,7 +11,7 @@ module WindowOnNewThread =
     
     /// creates a WPF window on a new STA thread.
     /// Returns the window and the associated SynchronizationContext
-    /// call BeginInvokeShutdown on thread when window is clossed
+    /// call BeginInvokeShutdown on thread when window is closed
     let show (createWindow:unit->Window) : Window*SynchronizationContext =
         //adapted from  http://reedcopsey.com/2011/11/28/launching-a-wpf-window-in-a-separate-thread-part-1/
         

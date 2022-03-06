@@ -9,7 +9,7 @@ open System.Windows.Threading
 /// and evaluate any function on UI thread (Sync.doSync(f))
 type SyncWpf private () = 
 
-    // This static class could be a module too but then the .context member could not do a check for initilisation on every access.
+    // This static class could be a module too but then the .context member could not do a check for initialization on every access.
     // It would be done when the module is loaded, that might be too early.
 
     static let mutable errorFileWrittenOnce = false // to not create more than one error file on Desktop per app run

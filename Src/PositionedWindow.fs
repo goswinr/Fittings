@@ -4,7 +4,7 @@ open System
 open System.Windows
 
 
-/// A class holding a resizable Window that remebers its position even after restarting.
+/// A class holding a re-sizable Window that remembers its position even after restarting.
 /// The path in settingsFile will be used to persist the position of this window in a txt file.
 type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as this = 
     inherit Windows.Window()
@@ -19,7 +19,7 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
     let mutable isMinOrMax = false
 
     do
-        //if not (String.IsNullOrWhiteSpace appName) then base.Title <- appName // migth srtil have special signs
+        //if not (String.IsNullOrWhiteSpace appName) then base.Title <- appName // might still have special signs
         base.ResizeMode  <- ResizeMode.CanResize
 
         //-------------------------------------------------------------------------
@@ -36,7 +36,7 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
         //let maxW = float <| Array.sumBy (fun (sc:Forms.Screen) -> sc.WorkingArea.Width)  Forms.Screen.AllScreens  // needed for dual screens ?, needs wins.forms
         //let maxH = float <| Array.sumBy (fun (sc:Forms.Screen) -> sc.WorkingArea.Height) Forms.Screen.AllScreens // https://stackoverflow.com/questions/37927011/in-wpf-how-to-shift-a-win-onto-the-screen-if-it-is-off-the-screen/37927012#37927012
 
-        let offTolerance = 25.0 // beeing 20 pixel off screen is still good enough for beeing on screen and beeing draggable
+        let offTolerance = 25.0 // being 20 pixel off screen is still good enough for being on screen and being drag-able
 
         let maxW = SystemParameters.VirtualScreenWidth   + offTolerance
         let maxH = SystemParameters.VirtualScreenHeight  + offTolerance // somehow a window docked on the right is 7 pix bigger than the screen ?? // TODO check dual screens !!
@@ -46,7 +46,7 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
         base.Height <-  winHeight
         base.Width <-   winWidth
 
-        // (2) only now set the maximise flag or correct position if off the screen
+        // (2) only now set the maximize flag or correct position if off the screen
         if settings.GetBool ("WindowIsMax", false) then
             //base.WindowState <- WindowState.Maximized // always puts it on first screen, do in loaded event instead
             setMaxAfterLoading <- true
@@ -70,13 +70,13 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
         //http://mostlytech.blogspot.com/2008/01/maximizing-wpf-window-to-second-monitor.html
         this.Loaded.Add (fun _ -> if setMaxAfterLoading then this.WindowState <- WindowState.Maximized)
 
-        this.LocationChanged.Add(fun e -> // occures for every pixel moved
+        this.LocationChanged.Add(fun e -> // occurs for every pixel moved
             async{
                 // normally the state change event comes after the location change event but before size changed. async sleep in LocationChanged prevents this
                 do! Async.Sleep 200 // so that StateChanged event comes first
                 if this.WindowState = WindowState.Normal &&  not isMinOrMax then
                     if this.Top > -500. && this.Left > -500. then // to not save on minimizing on minimized: Top=-32000 Left=-32000
-                        settings.SetFloatDelayed ("WindowTop"  ,this.Top  ,100) // get float in statechange maximised needs to access this before 350 ms pass
+                        settings.SetFloatDelayed ("WindowTop"  ,this.Top  ,100) // get float in state change Maximized needs to access this before 350 ms pass
                         settings.SetFloatDelayed ("WindowLeft" ,this.Left ,100)
                         settings.Save ()
                 }
@@ -86,7 +86,7 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
         this.StateChanged.Add (fun e ->
             match this.WindowState with
             | WindowState.Normal ->
-                // because when Window is hosted in other App the restore from maximised does not remember the previous position automatically
+                // because when Window is hosted in other App the restore from Maximized does not remember the previous position automatically
                 this.Top <-     settings.GetFloat ("WindowTop"    , 100.0 )
                 this.Left <-    settings.GetFloat ("WindowLeft"   , 100.0 )
                 this.Height <-  settings.GetFloat ("WindowHeight" , 800.0 )
@@ -109,7 +109,7 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
                 isMinOrMax  <- true
             )
 
-        this.SizeChanged.Add (fun e -> // does no get trigger on maximising
+        this.SizeChanged.Add (fun e -> // does no get trigger on maximizing
             if this.WindowState = WindowState.Normal &&  not isMinOrMax  then
                 settings.SetFloatDelayed ("WindowHeight", this.Height, 100 )
                 settings.SetFloatDelayed ("WindowWidth" , this.Width , 100 )
@@ -131,7 +131,7 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
         PositionedWindow(IO.FileInfo(f),errorLogger)
 
 
-    ///indicating if the Window is in Fullscreen mode or minimized mode (not normal mode)
+    ///indicating if the Window is in Full-screen mode or minimized mode (not normal mode)
     member this.IsMinOrMax = isMinOrMax
 
     /// Get or Set the native Window Handle that owns this window.

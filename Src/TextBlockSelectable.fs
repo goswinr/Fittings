@@ -9,9 +9,9 @@ open System.Reflection
 /// Provides a type called TextBlockSelectable
 /// A Textblock with selectable text
 module TextBlockAutoOpen = 
-    // adapetd from https://stackoverflow.com/a/45627524/969070
+    // adapted from https://stackoverflow.com/a/45627524/969070
 
-    /// Utility to make a Textbloch with selectable text
+    /// Utility to make a Textblock with selectable text
     type internal TextEditorWrapper(textContainer : obj, uiScope : FrameworkElement, isUndoEnabled : bool) = 
 
         static let flagsI = BindingFlags.Instance ||| BindingFlags.NonPublic

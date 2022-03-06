@@ -23,7 +23,7 @@ module Command =
 
         member this.RaiseCanExecuteChanged () = canExecuteChanged.Trigger(this , EventArgs.Empty)
 
-        //needed ? interface is implemented as members and as interface members( since in F# interfaces are explicit, not implicit like ein C#):
+        //needed ? interface is implemented as members and as interface members( since in F# interfaces are explicit, not implicit like in C#):
         [<CLIEvent>]
         member this.CanExecuteChanged = canExecuteChanged.Publish
         member this.CanExecute p = canExecute p
