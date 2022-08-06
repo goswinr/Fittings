@@ -16,6 +16,7 @@ FsEx.Wpf is a collection of utilities for working with WPF in F#. It has
 
 This Library carries the `FsEx` prefix, but has no dependency on https://github.com/goswinr/FsEx. 
 It only has the same author.
+
 It actually has zero dependencies. Apart form FSharp.Core (4.5+) that every F# library depends upon.
 
 ### License
@@ -24,7 +25,7 @@ It actually has zero dependencies. Apart form FSharp.Core (4.5+) that every F# l
 
 ### Changelog
 
-`0.3.0`
+`0.3.1`
 - rename ErrorHandeling to ErrorHandling 
 - better documentation
 - fix float precision in Settings class 
