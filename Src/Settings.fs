@@ -1,4 +1,4 @@
-﻿namespace FsEx.Wpf
+namespace FsEx.Wpf
 
 open System
 open System.Globalization
@@ -97,36 +97,38 @@ type Settings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->uni
         writer.WriteIfLast (settingsAsString,  250)
 
     /// Using maximum digits of precision
-    member this.SetFloatHighPrec (key, v:float)      = this.Set (key ,v.ToString("0.#",CultureInfo.InvariantCulture)) // InvariantCulture to not mess up , and .
+    member this.SetFloatHighPrec (key, v:float) = 
+        this.Set (key ,v.ToString("R",CultureInfo.InvariantCulture)) // R is slower but nicer than G17 formatter. InvariantCulture to not mess up , and .
 
     /// Using just one digit after zero for precision
-    member this.SetFloat         (key,v:float)       = this.Set (key,v.ToString("0.#",CultureInfo.InvariantCulture)) // InvariantCulture to not mess up , and .
+    member this.SetFloat  (key,v:float) = 
+        this.Set (key,v.ToString("0.#",CultureInfo.InvariantCulture)) // InvariantCulture to not mess up , and .
 
     /// Save float to dict after a delay.
     /// Using just one digit after zero for precision
-    /// A delay is useful e.g. because the onMaximise of window event triggers first Location changed and then state changed,
+    /// A delay is useful e.g. because the OnMaximise of window event triggers first Location changed and then state changed,
     /// State change event should still be able to Get previous size and location that is not saved yet
-    member this.SetFloatDelayed (key ,v:float, delay) = this.SetDelayed (key ,v.ToString("0.#",CultureInfo.InvariantCulture), delay) // InvariantCulture to not mess up , and .
+    member this.SetFloatDelayed (key ,v:float, delay) = 
+        this.SetDelayed (key ,v.ToString("0.#",CultureInfo.InvariantCulture), delay) // InvariantCulture to not mess up , and .
 
-    member this.SetInt          (key ,v:int)         = this.Set (key ,string v)
+    member this.SetInt   (key ,v:int)  = this.Set (key ,string v)
 
-    member this.SetBool         (key ,v:bool)        = this.Set (key ,string v)
+    member this.SetBool  (key ,v:bool) = this.Set (key ,string v)
 
-    member this.GetFloat        (key, def)  = getFloat key def
-
-    member this.GetInt          (key, def)  = getInt   key def
-
-    member this.GetBool         (key, def)  = getBool  key def
+    member this.GetFloat (key, def) = getFloat key def
+                                    
+    member this.GetInt   (key, def) = getInt   key def
+                                    
+    member this.GetBool  (key, def) = getBool  key def
 
     /// Also saves the default value to the settings if not found
-    member this.GetFloatSaveDefault        (key, def)  = match get key with Some v -> pfloat v def  | None -> this.SetFloatHighPrec(key, def); this.Save(); def
+    member this.GetFloatSaveDefault (key, def)  = match get key with Some v -> pfloat v def | None -> this.SetFloatHighPrec(key, def); this.Save(); def
     
     /// Also saves the default value to the settings if not found
-    member this.GetIntSaveDefault           (key, def)  = match get key with Some v -> pint v def    | None -> this.SetInt(key, def);this.Save();def
-    
-    /// Also saves the default value to the settings if not found
-    member this.GetBoolSaveDefault          (key, def)  = match get key with Some v -> pbool v def   | None -> this.SetBool(key, def);this.Save();def
-
-
-    /// Also saves the default value to the settings if not found
-    member this.GetSaveDefault          (key, def)  = match get key with Some v ->  v  | None -> this.Set(key, def);this.Save();def
+    member this.GetIntSaveDefault  (key, def)  = match get key with Some v -> pint v def    | None -> this.SetInt(key, def)          ; this.Save(); def
+                                                                                                                                      
+    /// Also saves the default value to the settings if not found                                                                     
+    member this.GetBoolSaveDefault (key, def)  = match get key with Some v -> pbool v def   | None -> this.SetBool(key, def)         ; this.Save(); def
+                                                                                                                                      
+    /// Also saves the default value to the settings if not found                                                                     
+    member this.GetSaveDefault     (key, def)  = match get key with Some v ->  v            | None -> this.Set(key, def)             ; this.Save(); def
