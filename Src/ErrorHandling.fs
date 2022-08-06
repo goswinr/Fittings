@@ -38,12 +38,12 @@ type ProcessCorruptedState(applicationName:string, appendText:unit->string) =
             eprintfn "%s" err
 
     static member getWin32Errors() = 
-        let lasterror = Marshal.GetLastWin32Error() // https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/18d8fbe8-a967-4f1c-ae50-99ca8e491d2d
-        if lasterror <> 0 then
+        let lastError = Marshal.GetLastWin32Error() // https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/18d8fbe8-a967-4f1c-ae50-99ca8e491d2d
+        if lastError <> 0 then
             "WIN32 LAST ERROR:\r\n-no win32 Errors-"
         else
-            let innerEx = new Win32Exception(lasterror) //Win32 error codes are translated from their numeric representations into a system message
-            sprintf "WIN32 LAST ERROR:\r\nErrorCode %d: %s-" lasterror innerEx.Message
+            let innerEx = new Win32Exception(lastError) //Win32 error codes are translated from their numeric representations into a system message
+            sprintf "WIN32 LAST ERROR:\r\nErrorCode %d: %s-" lastError innerEx.Message
 
 
 
@@ -52,7 +52,7 @@ type ProcessCorruptedState(applicationName:string, appendText:unit->string) =
 /// or access violation errors from FSI threads too
 /// (applicationName) for name to be displayed
 /// (appendText:unit->string) to get additional text to add to the error message
-type ErrorHandeling(applicationName:string, appendText:unit->string)  = 
+type ErrorHandling(applicationName:string, appendText:unit->string)  = 
 
     let maxThrowCount = 20
 
