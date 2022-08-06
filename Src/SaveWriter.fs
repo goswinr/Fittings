@@ -11,8 +11,7 @@ module internal Help =
     /// If the input string is longer than maxChars + 20 then
     /// it returns the input string trimmed to maxChars, a count of skipped characters and the last 6 characters (all enclosed in double quotes ")
     /// e.g. "abcde[..20 more Chars..]xyz"
-    /// Else, if the input string is less than maxChars + 20, it is still returned in full (enclosed in double quotes ").
-    /// also see String.truncatedFormated
+    /// Else, if the input string is less than maxChars + 20, it is still returned in full (enclosed in double quotes ").    
     let truncateString (stringToTrim:string) = 
         if isNull stringToTrim then "-null string-" // add too, just in case this gets called externally
         elif stringToTrim.Length <= maxCharsInString + 20 then sprintf "\"%s\""stringToTrim
@@ -112,10 +111,10 @@ type SaveReadWriter (path:string, errorLogger:string->unit)=
     /// If other calls to this function have been made then only the last call will be written as file.
     /// Also ensures that no reading happens while writing.
     /// Writes Exceptions to errorLogger
-    member this.WriteIfLast ( getText: unit->string, delayMillisSeconds:int) = 
+    member this.WriteIfLast ( getText: unit->string, delayMilliSeconds:int) = 
         async{
             let k = Interlocked.Increment counter
-            do! Async.Sleep(delayMillisSeconds) // delay to see if this is the last of many events (otherwise there is a noticeable lag in dragging window around, for example, when saving window position)
+            do! Async.Sleep(delayMilliSeconds) // delay to see if this is the last of many events (otherwise there is a noticeable lag in dragging window around, for example, when saving window position)
             if !counter = k then //k > 2L &&   //do not save on startup && only save last event after a delay if there are many save events in a row ( eg from window size change)(ignore first two event from creating window)
                 try
                     let text = getText()

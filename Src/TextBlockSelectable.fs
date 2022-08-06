@@ -5,9 +5,9 @@ open System.Windows
 open System.Windows.Controls
 open System.Reflection
 
-[<AutoOpen>]
 /// Provides a type called TextBlockSelectable
 /// A Textblock with selectable text
+[<AutoOpen>]
 module TextBlockAutoOpen = 
     // adapted from https://stackoverflow.com/a/45627524/969070
 

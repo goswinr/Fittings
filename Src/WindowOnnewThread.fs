@@ -19,15 +19,15 @@ module WindowOnNewThread =
         let mutable win: Window = null       
         
         let th = new Thread(new ThreadStart( fun () -> 
-                   let ctx = new DispatcherSynchronizationContext( Dispatcher.CurrentDispatcher)
-                   asyncContext <- ctx:>SynchronizationContext
-                   SynchronizationContext.SetSynchronizationContext( new DispatcherSynchronizationContext( Dispatcher.CurrentDispatcher))
-                   win <- createWindow()
-                   win.Closed.Add ( fun _ ->  Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Background)) 
-                   win.Show()
-                   // Start the Dispatcher Processing
-                   System.Windows.Threading.Dispatcher.Run()
-                   ))
+                let ctx = new DispatcherSynchronizationContext( Dispatcher.CurrentDispatcher)
+                asyncContext <- ctx:>SynchronizationContext
+                SynchronizationContext.SetSynchronizationContext( new DispatcherSynchronizationContext( Dispatcher.CurrentDispatcher))
+                win <- createWindow()
+                win.Closed.Add ( fun _ ->  Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Background)) 
+                win.Show()
+                // Start the Dispatcher Processing
+                System.Windows.Threading.Dispatcher.Run()
+                ))
         th.SetApartmentState(ApartmentState.STA)
         th.IsBackground <- true
         th.Start()    

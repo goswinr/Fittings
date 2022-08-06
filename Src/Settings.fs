@@ -1,14 +1,14 @@
-namespace FsEx.Wpf
+﻿namespace FsEx.Wpf
 
 open System
 open System.Globalization
 open System.Text
 
-/// A class to save window size, layout and position, and more Settings.
-/// This class is useful when in a hosted context app.config does not work.
+/// A class to save window size, layout and position, or any arbitrary string-string key-value pairs.
+/// This class is useful when app.config does not work in a hosted context.
 /// Keys may not contain the separator character, Values and keys may not contain a new line character
 /// Comments are not allowed
-/// Any errors are saved to this.Errors list.
+/// Any errors are reported to the provided logging functions.
 type Settings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->unit) = 
 
     let  sep  = separator // key value separator
@@ -54,16 +54,17 @@ type Settings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->uni
     let getBool   key def = match get key with Some v -> pbool v def   | None -> def
 
 
-    /// A class to save window size, layout and position,  and more Settings
-    /// This class is useful when in a hosted context app.config does not work
-    /// Values in txt file will be separated by  '=' .
+    /// Create a class to save window size, layout and position, or any arbitrary string-string key value pairs.
+    /// This class is useful when app.config does not work in a hosted context.
+    /// Keys may not contain the separator character '=' , Values and keys may not contain a new line character
     /// Comments are not allowed
+    /// Any errors are reported to the provided logging functions.
     new (settingsFile:IO.FileInfo, errorLogger:string->unit) = 
         Settings (settingsFile, '=', errorLogger)
 
 
     /// Save setting with a delay.
-    /// Delayed because the onMaximise of window event triggers first location changed and then state changed,
+    /// Delayed because the OnMaximise of window event triggers first location changed and then state changed,
     /// State change event should still be able to Get previous size and location that is not saved yet
     /// call Save() afterwards
     member this.SetDelayed (k, v , delay:int)= 

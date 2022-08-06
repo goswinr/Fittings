@@ -14,14 +14,23 @@ FsEx.Wpf is a collection of utilities for working with WPF in F#. It has
 * Utilities for synchronization, global error handling, Dependency Properties, Commands, and ViewModels
 
 
+This Library carries the `FsEx` prefix, but has no dependency on https://github.com/goswinr/FsEx. 
+It only has the same author.
+It actually has zero dependencies. Apart form FSharp.Core (4.5+) that every F# library depends upon.
+
 ### License
 
 [MIT](https://raw.githubusercontent.com/goswinr/FsEx.Wpf/main/LICENSE.txt)
 
 ### Changelog
 
+`0.3.0`
+- rename ErrorHandeling to ErrorHandling 
+- better documentation
+- fix float precision in Settings class 
+
 `0.2.0` 
-- more functionality on Setting serialization API   
+- more functionality on Settings serialization API   
 
 `0.1.0` 
 - first public release
