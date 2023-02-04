@@ -8,7 +8,7 @@ open System.ComponentModel
 #nowarn "44" //This construct is deprecated. Recovery from corrupted process state exceptions is not supported; HandleProcessCorruptedStateExceptionsAttribute is ignored.
 
 
-/// A class to provide an Error Handler that can catch corrupted state or access violation errors from FSI threads too
+/// A class to provide an Error Handler that can catch corrupted state or access violation errors from FSI threads too.
 type ProcessCorruptedState(applicationName:string, appendText:unit->string) = 
     
     let desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
@@ -47,11 +47,11 @@ type ProcessCorruptedState(applicationName:string, appendText:unit->string) =
 
 
 
-/// To set up global AppDomain.CurrentDomain.UnhandledException.Handler
+/// To set up global AppDomain.CurrentDomain.UnhandledException.Handler.
 /// A class to provide an Error Handler that can catch corrupted state 
-/// or access violation errors from FSI threads too
-/// (applicationName) for name to be displayed
-/// (appendText:unit->string) to get additional text to add to the error message
+/// or access violation errors from FSI threads too.
+/// (applicationName) for name to be displayed.
+/// (appendText:unit->string) to get additional text to add to the error message.
 type ErrorHandling(applicationName:string, appendText:unit->string)  = 
 
     let maxThrowCount = 20

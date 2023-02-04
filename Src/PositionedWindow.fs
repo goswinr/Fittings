@@ -9,7 +9,7 @@ open System.Windows
 type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as this = 
     inherit Windows.Window()
 
-    let settings = Settings(settingsFile,errorLogger)
+    let settings = new PersistentSettings(settingsFile,errorLogger)
 
     /// the owning window
     let mutable owner = IntPtr.Zero
@@ -116,9 +116,10 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
                 settings.Save ()
             )
 
-    /// Creat from application name only
+    /// Create from application name only
     /// Settings will be saved in LocalApplicationData folder
-    /// Also sets window.Title to applicationName
+    /// In a subfolder called 'applicationName'.
+    /// The file itself will be called 'FsEx.Wpf.PositionedWindow.Settings.txt'.
     new (applicationName:string, errorLogger:string->unit) = 
         let appName = 
            let mutable n = applicationName
@@ -127,11 +128,11 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
         let appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
         let p = IO.Path.Combine(appData,appName)
         IO.Directory.CreateDirectory(p) |> ignore
-        let f = IO.Path.Combine(p,"Settings.txt")
-        PositionedWindow(IO.FileInfo(f),errorLogger)
+        let f = IO.Path.Combine(p,"FsEx.Wpf.PositionedWindow.Settings.txt")
+        PositionedWindow(IO.FileInfo(f), errorLogger)
 
 
-    ///indicating if the Window is in Full-screen mode or minimized mode (not normal mode)
+    /// Indicating if the Window is in Full-screen mode or minimized mode (not normal mode)
     member this.IsMinOrMax = isMinOrMax
 
     /// Get or Set the native Window Handle that owns this window.

@@ -17,14 +17,11 @@
     <Product>FsEx.Wpf</Product>
     <PackageId>FsEx.Wpf</PackageId>
 
-    <Version>0.3.1</Version>
-    <AssemblyVersion>0.3.1</AssemblyVersion>
-    <FileVersion>0.3.1</FileVersion>
+    <Version>0.4.0</Version>
+    <AssemblyVersion>0.4.0</AssemblyVersion>
+    <FileVersion>0.4.0</FileVersion>
     <PackageReleaseNotes>
-		0.3.1
-    - rename ErrorHandeling to ErrorHandling
-		- better documentation
-		- fix float precision in Settings class
+    - rename Settings to  PersistentSettings
 	</PackageReleaseNotes>
 
     <Authors>GoswinR</Authors>
@@ -68,7 +65,7 @@
 
     <Compile Include="Src/TextBlockSelectable.fs" />
     <Compile Include="Src/SaveWriter.fs" />
-    <Compile Include="Src/Settings.fs" />
+    <Compile Include="Src/PersistentSettings.fs" />
     <Compile Include="Src/Command.fs" />
     <Compile Include="Src/ViewModel.fs" />
     <Compile Include="Src/DependencyProps.fs" />

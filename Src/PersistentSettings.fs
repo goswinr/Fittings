@@ -6,10 +6,10 @@ open System.Text
 
 /// A class to save window size, layout and position, or any arbitrary string-string key-value pairs.
 /// This class is useful when app.config does not work in a hosted context.
-/// Keys may not contain the separator character, Values and keys may not contain a new line character
-/// Comments are not allowed
+/// Keys may not contain the separator character, Values and keys may not contain a new line character.
+/// Comments are not allowed.
 /// Any errors are reported to the provided logging functions.
-type Settings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->unit) = 
+type PersistentSettings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->unit) = 
 
     let  sep  = separator // key value separator
 
@@ -20,7 +20,10 @@ type Settings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->uni
 
     let settingsDict = 
         let dict = new Collections.Concurrent.ConcurrentDictionary<string,string>()
-        if writer.CreateFileIfMissing("") then //errors get  logged //for case when Settings file is not found. (This is expected on first use of the App.)"
+        match writer.CreateFileIfMissing("") with
+        | Failed -> () //errors get logged to errorLogger function
+        | Created -> () //for case when Settings file is not found. (This is expected on first use of the App.)"
+        | ExitedAlready ->
             match writer.ReadAllLines() with
             |None -> () //errors get logged
             |Some lns ->
@@ -29,7 +32,7 @@ type Settings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->uni
                     | -1 -> errorLogger (sprintf "Bad line in settings file: '%s'" ln)
                     | i ->
                         let k = ln.Substring(0,i)
-                        let v = ln.Substring(i+1)// + 1 to skip sep
+                        let v = ln.Substring(i+1) // + 1 to skip sep
                         dict.[k] <- v // TODO allow for comments? tricky because comments need to be saved back too
         dict
 
@@ -56,17 +59,17 @@ type Settings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->uni
 
     /// Create a class to save window size, layout and position, or any arbitrary string-string key value pairs.
     /// This class is useful when app.config does not work in a hosted context.
-    /// Keys may not contain the separator character '=' , Values and keys may not contain a new line character
-    /// Comments are not allowed
+    /// Keys may not contain the separator character '=' , Values and keys may not contain a new line character.
+    /// Comments are not allowed.
     /// Any errors are reported to the provided logging functions.
     new (settingsFile:IO.FileInfo, errorLogger:string->unit) = 
-        Settings (settingsFile, '=', errorLogger)
+        PersistentSettings (settingsFile, '=', errorLogger)
 
 
     /// Save setting with a delay.
     /// Delayed because the OnMaximise of window event triggers first location changed and then state changed,
-    /// State change event should still be able to Get previous size and location that is not saved yet
-    /// call Save() afterwards
+    /// State change event should still be able to Get previous size and location that is not saved yet.
+    /// Call Save() afterwards.
     member this.SetDelayed (k, v , delay:int)= 
         async{  do! Async.Sleep(delay)
                 settingsDict.[k] <- v
@@ -74,7 +77,7 @@ type Settings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->uni
 
     /// Add string value to the Concurrent settings Dictionary.
     /// Keys may not contain the separator character, Values and keys may not contain a new line character.
-    /// If they do it will be replaced by empty string. And a message will be written to errorLogger
+    /// If they do it will be replaced by empty string. And a message will be written to errorLogger.
     /// Comments care not allowed.
     /// Call this.Save() afterwards to write to file async with a bit of delay.
     member this.Set (key:string, value:string) :unit = 
@@ -92,7 +95,7 @@ type Settings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->uni
     /// Get String value from settings
     member this.Get k = get k
 
-    /// Write to Settings to  file in specified in constructor
+    /// Write to Settings to  file in specified in constructor.
     /// Writes after a delay of 250 ms and only if there was no more recent call to Save.
     member this.Save () = 
         writer.WriteIfLast (settingsAsString,  250)
@@ -106,9 +109,9 @@ type Settings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->uni
         this.Set (key,v.ToString("0.#",CultureInfo.InvariantCulture)) // InvariantCulture to not mess up , and .
 
     /// Save float to dict after a delay.
-    /// Using just one digit after zero for precision
+    /// Using just one digit after zero for precision.
     /// A delay is useful e.g. because the OnMaximise of window event triggers first Location changed and then state changed,
-    /// State change event should still be able to Get previous size and location that is not saved yet
+    /// State change event should still be able to Get previous size and location that is not saved yet.
     member this.SetFloatDelayed (key ,v:float, delay) = 
         this.SetDelayed (key ,v.ToString("0.#",CultureInfo.InvariantCulture), delay) // InvariantCulture to not mess up , and .
 
@@ -122,14 +125,14 @@ type Settings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->uni
                                     
     member this.GetBool  (key, def) = getBool  key def
 
-    /// Also saves the default value to the settings if not found
+    /// Also saves the default value to the settings if not found.
     member this.GetFloatSaveDefault (key, def)  = match get key with Some v -> pfloat v def | None -> this.SetFloatHighPrec(key, def); this.Save(); def
     
-    /// Also saves the default value to the settings if not found
+    /// Also saves the default value to the settings if not found.
     member this.GetIntSaveDefault  (key, def)  = match get key with Some v -> pint v def    | None -> this.SetInt(key, def)          ; this.Save(); def
                                                                                                                                       
-    /// Also saves the default value to the settings if not found                                                                     
+    /// Also saves the default value to the settings if not found.                                                                     
     member this.GetBoolSaveDefault (key, def)  = match get key with Some v -> pbool v def   | None -> this.SetBool(key, def)         ; this.Save(); def
                                                                                                                                       
-    /// Also saves the default value to the settings if not found                                                                     
+    /// Also saves the default value to the settings if not found.                                                                     
     member this.GetSaveDefault     (key, def)  = match get key with Some v ->  v            | None -> this.Set(key, def)             ; this.Save(); def

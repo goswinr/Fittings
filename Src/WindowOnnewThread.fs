@@ -9,7 +9,7 @@ open System.Windows.Threading
 [<RequireQualifiedAccess>]
 module WindowOnNewThread =
     
-    /// creates a WPF window on a new STA thread.
+    /// Creates a WPF window on a new STA thread.
     /// Returns the window and the associated SynchronizationContext
     /// call BeginInvokeShutdown on thread when window is closed
     let show (createWindow:unit->Window) : Window*SynchronizationContext =

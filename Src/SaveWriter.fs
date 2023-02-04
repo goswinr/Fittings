@@ -5,6 +5,8 @@ open System.Threading
 
 
 module internal Help = 
+    open System.Collections.Generic
+    open System.IO
 
     let maxCharsInString = 500
 
@@ -21,17 +23,31 @@ module internal Help =
             let last20 = stringToTrim.Substring(len-21)
             sprintf "\"%s[<< ... %d more chars ... >>]%s\"" st (len - maxCharsInString - 20) last20
 
+    
+    let normalizePath path =  //https://stackoverflow.com/questions/1266674
+        Path.GetFullPath(Uri(path).LocalPath).ToUpperInvariant()
+    
+    let uniqueFilesEnsurer = HashSet<string>()
+    
+
+type CreateFileResult = Created | ExitedAlready| Failed
 
 /// Reads and Writes with Lock,
 /// Optionally only once after a delay in which it might be called several times
 /// using Text.Encoding.UTF8
 /// Writes Exceptions to errorLogger because it is tricky to catch exceptions form an async thread
 type SaveReadWriter (path:string, errorLogger:string->unit)= 
-    // same class also exist in FsEx , TODO keep in sync! https://github.com/goswinr/FsEx/blob/main/Src/IO.fs#L155
+    // same class also exist in FsEx.IO , TODO keep in sync! https://github.com/goswinr/FsEx.IO/blob/main/Src/IO.fs#L155
 
     let counter = ref 0L // for atomic writing back to file
 
     let lockObj = new Object()
+
+    do
+        if Help.uniqueFilesEnsurer.Contains(Help.normalizePath path) then
+            errorLogger(sprintf "FsEx.Wpf.SaveReadWriter: path '%s' is used already. Reads and Writes are not threadsafe anymore." path)            
+        else
+            Help.uniqueFilesEnsurer.Add(Help.normalizePath path) |> ignore
 
     /// Calls IO.File.Exists(path)
     member this.FileExists = IO.File.Exists(path)
@@ -41,20 +57,21 @@ type SaveReadWriter (path:string, errorLogger:string->unit)=
     /// The full file path
     member this.Path : string  = path
 
+
     /// Creates file with text , only if it does not exist yet.
     /// Writes Exceptions to errorLogger.
     /// Returns true if file exists or was successfully created
-    member this.CreateFileIfMissing(text) :bool = 
+    member this.CreateFileIfMissing(text) :CreateFileResult = 
         if IO.File.Exists(path) then
-            true
+            ExitedAlready
         else
             try
                 IO.File.WriteAllText(path, text,Text.Encoding.UTF8)
-                true
+                Created
 
             with e ->
                 errorLogger(sprintf "FsEx.Wpf.SaveReadWriter.CreateFileIfMissing for path '%s' :\r\n%A" path e)
-                false
+                Failed
 
 
     /// Thread Save reading.
