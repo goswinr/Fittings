@@ -25,9 +25,12 @@ It actually has zero dependencies. Apart form FSharp.Core (4.5+) that every F# l
 [MIT](https://raw.githubusercontent.com/goswinr/FsEx.Wpf/main/LICENSE.txt)
 
 ### Changelog
+`0.5.0`
+- trim whitespace on keys and values in  PersistentSettings
+- ignore empty lines in PersistentSettings
 
 `0.4.0`
-- rename Settings to  PersistentSettings
+- rename Settings to PersistentSettings
 - add warning to SaveWriter if file is used twice
 
 `0.3.1`

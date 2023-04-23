@@ -6,6 +6,8 @@ open System.Windows
 
 /// A class holding a re-sizable Window that remembers its position even after restarting.
 /// The path in settingsFile will be used to persist the position of this window in a txt file.
+/// The ErrorLogger function will be called if the previous Window position could not restore.
+/// The window be positioned in the screen center with a size of 600 x 600.
 type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as this = 
     inherit Windows.Window()
 
@@ -120,6 +122,8 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
     /// Settings will be saved in LocalApplicationData folder
     /// In a subfolder called 'applicationName'.
     /// The file itself will be called 'FsEx.Wpf.PositionedWindow.Settings.txt'.
+    /// The ErrorLogger function will be called if the previous Window position could not restore.
+    /// The window be positioned in the screen center with a size of 600 x 600.
     new (applicationName:string, errorLogger:string->unit) = 
         let appName = 
            let mutable n = applicationName

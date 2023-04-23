@@ -8,6 +8,7 @@ open System.Text
 /// This class is useful when app.config does not work in a hosted context.
 /// Keys may not contain the separator character, Values and keys may not contain a new line character.
 /// Comments are not allowed.
+/// Whitespace around keys and values will be trimmed off.
 /// Any errors are reported to the provided logging functions.
 type PersistentSettings (settingsFile:IO.FileInfo, separator:char, errorLogger:string->unit) = 
 
@@ -28,12 +29,16 @@ type PersistentSettings (settingsFile:IO.FileInfo, separator:char, errorLogger:s
             |None -> () //errors get logged
             |Some lns ->
                 for ln in lns do
-                    match ln.IndexOf(sep) with
-                    | -1 -> errorLogger (sprintf "Bad line in settings file: '%s'" ln)
-                    | i ->
-                        let k = ln.Substring(0,i)
-                        let v = ln.Substring(i+1) // + 1 to skip sep
-                        dict.[k] <- v // TODO allow for comments? tricky because comments need to be saved back too
+                    if not <| String.IsNullOrWhiteSpace ln then // ignore empty lines
+                        match ln.IndexOf(sep) with
+                        | -1 -> errorLogger (sprintf "Bad line in settings file: '%s'" ln)
+                        | i ->
+                            let k = ln.Substring(0,i).Trim()
+                            if ln.Length > i then 
+                                let v = ln.Substring(i+1).Trim() // + 1 to skip sep
+                                dict.[k] <- v // TODO allow for comments? tricky because comments need to be saved back too
+                            else
+                                dict.[k] <- ""
         dict
 
 
@@ -61,13 +66,14 @@ type PersistentSettings (settingsFile:IO.FileInfo, separator:char, errorLogger:s
     /// This class is useful when app.config does not work in a hosted context.
     /// Keys may not contain the separator character '=' , Values and keys may not contain a new line character.
     /// Comments are not allowed.
+    /// Whitespace around keys and values will be trimmed off.
     /// Any errors are reported to the provided logging functions.
     new (settingsFile:IO.FileInfo, errorLogger:string->unit) = 
         PersistentSettings (settingsFile, '=', errorLogger)
 
 
     /// Save setting with a delay.
-    /// Delayed because the OnMaximise of window event triggers first location changed and then state changed,
+    /// Delayed because the OnMaximize of window event triggers first location changed and then state changed,
     /// State change event should still be able to Get previous size and location that is not saved yet.
     /// Call Save() afterwards.
     member this.SetDelayed (k, v , delay:int)= 
@@ -110,7 +116,7 @@ type PersistentSettings (settingsFile:IO.FileInfo, separator:char, errorLogger:s
 
     /// Save float to dict after a delay.
     /// Using just one digit after zero for precision.
-    /// A delay is useful e.g. because the OnMaximise of window event triggers first Location changed and then state changed,
+    /// A delay is useful e.g. because the OnMaximize of window event triggers first Location changed and then state changed,
     /// State change event should still be able to Get previous size and location that is not saved yet.
     member this.SetFloatDelayed (key ,v:float, delay) = 
         this.SetDelayed (key ,v.ToString("0.#",CultureInfo.InvariantCulture), delay) // InvariantCulture to not mess up , and .

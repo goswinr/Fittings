@@ -65,7 +65,7 @@ type ErrorHandling(applicationName:string, appendText:unit->string)  =
     /// UnhandledException that cant be caught create a log file on the desktop
     member this.Setup() : unit= 
         throwCount <- 0 // reset
-        if not <| isNull Application.Current then // null if application is not yet created, or no application in hoted context
+        if not <| isNull Application.Current then // null if application is not yet created, or no application in hosted context
             Application.Current.DispatcherUnhandledException.Add(fun e ->
                 let mutable print = true
                 if print then
