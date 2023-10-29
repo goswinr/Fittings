@@ -1,4 +1,4 @@
-namespace FsEx.Wpf
+namespace Fittings
 
 open System
 open System.Windows
@@ -29,7 +29,7 @@ type ProcessCorruptedState(applicationName:string, appendText:unit->string) =
             // https://stackoverflow.com/questions/39956163/gracefully-handling-corrupted-state-exceptions
 
             let time = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss-fff")// to ensure unique file names
-            let filename = sprintf "%s-FsEx.Wpf-UnhandledException-%s.txt" appName time
+            let filename = sprintf "%s-Fittings-UnhandledException-%s.txt" appName time
             let file = IO.Path.Combine(desktop,filename)
             let win32Err = ProcessCorruptedState.getWin32Errors()
             let err = sprintf "%s:ProcessCorruptedState Special Handler: AppDomain.CurrentDomain.UnhandledException: \r\n isTerminating: %b : \r\n time: %s \r\n\r\n%A \r\n\r\n%s \r\n\r\n%s" applicationName e.IsTerminating time e.ExceptionObject (appendText()) win32Err

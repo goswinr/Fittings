@@ -1,4 +1,4 @@
-﻿namespace FsEx.Wpf
+﻿namespace Fittings
 
 open System
 open System.Threading
@@ -45,7 +45,7 @@ type SaveReadWriter (path:string, errorLogger:string->unit)=
 
     do
         if Help.uniqueFilesEnsurer.Contains(Help.normalizePath path) then
-            errorLogger(sprintf "FsEx.Wpf.SaveReadWriter: path '%s' is used already. Reads and Writes are not threadsafe anymore." path)            
+            errorLogger(sprintf "Fittings.SaveReadWriter: path '%s' is used already. Reads and Writes are not threadsafe anymore." path)            
         else
             Help.uniqueFilesEnsurer.Add(Help.normalizePath path) |> ignore
 
@@ -70,7 +70,7 @@ type SaveReadWriter (path:string, errorLogger:string->unit)=
                 Created
 
             with e ->
-                errorLogger(sprintf "FsEx.Wpf.SaveReadWriter.CreateFileIfMissing for path '%s' :\r\n%A" path e)
+                errorLogger(sprintf "Fittings.SaveReadWriter.CreateFileIfMissing for path '%s' :\r\n%A" path e)
                 Failed
 
 
@@ -82,7 +82,7 @@ type SaveReadWriter (path:string, errorLogger:string->unit)=
         lock lockObj (fun () ->
             try Some <| IO.File.ReadAllText(path, Text.Encoding.UTF8)
             with e ->
-                errorLogger(sprintf "FsEx.Wpf.SaveReadWriter.ReadAllText from path '%s' :\r\n%A" path e)
+                errorLogger(sprintf "Fittings.SaveReadWriter.ReadAllText from path '%s' :\r\n%A" path e)
                 None  )
 
 
@@ -94,7 +94,7 @@ type SaveReadWriter (path:string, errorLogger:string->unit)=
         lock lockObj (fun () ->
             try Some <| IO.File.ReadAllLines(path, Text.Encoding.UTF8)
             with e ->
-                errorLogger(sprintf "FsEx.Wpf.SaveReadWriter.ReadAllText from '%s' :\r\n%A" path e)
+                errorLogger(sprintf "Fittings.SaveReadWriter.ReadAllText from '%s' :\r\n%A" path e)
                 None  )
 
 
@@ -106,7 +106,7 @@ type SaveReadWriter (path:string, errorLogger:string->unit)=
             lock lockObj (fun () -> // lock is using Monitor class : https://github.com/dotnet/fsharp/blob/6d91b3759affe3320e48f12becbbbca493574b22/src/fsharp/FSharp.Core/prim-types.fs#L4793
                 try  IO.File.WriteAllText(path,text, Text.Encoding.UTF8)
                 // try & with is needed because exceptions on threadpool cannot be caught otherwise !!
-                with ex ->  errorLogger(sprintf "FsEx.Wpf.SaveWriter.WriteAsync failed with: %A \r\n while writing to %s:\r\n%A" ex path (Help.truncateString text)) // use %A to trim long text
+                with ex ->  errorLogger(sprintf "Fittings.SaveWriter.WriteAsync failed with: %A \r\n while writing to %s:\r\n%A" ex path (Help.truncateString text)) // use %A to trim long text
                 )
             } |> Async.Start
 
@@ -118,7 +118,7 @@ type SaveReadWriter (path:string, errorLogger:string->unit)=
             lock lockObj (fun () -> // lock is using Monitor class : https://github.com/dotnet/fsharp/blob/6d91b3759affe3320e48f12becbbbca493574b22/src/fsharp/FSharp.Core/prim-types.fs#L4793
                 try  IO.File.WriteAllLines(path,texts, Text.Encoding.UTF8)
                 // try & with is needed because exceptions on threadpool cannot be caught otherwise !!
-                with ex ->  errorLogger(sprintf "FsEx.Wpf.SaveWriter.WriteAllLinesAsync failed with: %A \r\n while writing to %s:\r\n%A" ex path (Array.truncate 20 texts)) // use %A to trim long text
+                with ex ->  errorLogger(sprintf "Fittings.SaveWriter.WriteAllLinesAsync failed with: %A \r\n while writing to %s:\r\n%A" ex path (Array.truncate 20 texts)) // use %A to trim long text
                 )
             } |> Async.Start
 
@@ -138,5 +138,5 @@ type SaveReadWriter (path:string, errorLogger:string->unit)=
                     this.WriteAsync (text) // this should never fail since exceptions are caught inside
                 with ex ->
                     // try & with is needed because exceptions on threadpool cannot be caught otherwise !!
-                    errorLogger(sprintf "FsEx.Wpf.SaveWriter.WriteIfLast: getText() for path '%s' failed with: %A" path ex )
+                    errorLogger(sprintf "Fittings.SaveWriter.WriteIfLast: getText() for path '%s' failed with: %A" path ex )
             } |> Async.StartImmediate

@@ -1,4 +1,4 @@
-﻿namespace FsEx.Wpf
+﻿namespace Fittings
 
 open System
 open System.Threading
@@ -27,7 +27,7 @@ type SyncWpf private () =
         if isNull ctx && logErrorsOnDesktop && not errorFileWrittenOnce then
             // reporting this to the UI instead would not work since there is no sync context for the UI
             let time = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss-fff") // to ensure unique file names
-            let filename = sprintf "FsEx.Wpf.SynchronizationContext setup failed-%s.txt" time
+            let filename = sprintf "Fittings.SynchronizationContext setup failed-%s.txt" time
             let desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
             let file = IO.Path.Combine(desktop,filename)
             try IO.File.WriteAllText(file, "Failed to get DispatcherSynchronizationContext") with _ -> () // file might be open or locked

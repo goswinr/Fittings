@@ -10,25 +10,24 @@
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>    <!--to only have the english resources-->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-    <RootNamespace>FsEx.Wpf</RootNamespace>
-    <AssemblyName>FsEx.Wpf</AssemblyName>
-    <AssemblyTitle>FsEx.Wpf</AssemblyTitle>
-    <Title>FsEx.Wpf</Title>
-    <Product>FsEx.Wpf</Product>
-    <PackageId>FsEx.Wpf</PackageId>
+    <RootNamespace>Fittings</RootNamespace>
+    <AssemblyName>Fittings</AssemblyName>
+    <AssemblyTitle>Fittings</AssemblyTitle>
+    <Title>Fittings</Title>
+    <Product>Fittings</Product>
+    <PackageId>Fittings</PackageId>
 
-    <Version>0.5.0</Version>
-    <AssemblyVersion>0.5.0</AssemblyVersion>
-    <FileVersion>0.5.0</FileVersion>
+    <Version>0.6.0</Version>
+    <AssemblyVersion>0.6.0</AssemblyVersion>
+    <FileVersion>0.6.0</FileVersion>
     <PackageReleaseNotes>		
-		- trim whitespace on keys and values in  PersistentSettings
-		- ignore empty lines in PersistentSettings
-	</PackageReleaseNotes>
+		  - Rename this library to Fittings from FsEx.Wpf
+	  </PackageReleaseNotes>
 
     <Authors>GoswinR</Authors>
     <Copyright>Goswin Rothenthal 2021</Copyright>
 
-    <Description>FsEx.Wpf is a collection of utilities for working with WPF in F#</Description>
+    <Description>Fittings is a collection of utilities for working with WPF in F#</Description>
 
     <Configurations>Release</Configurations>
   </PropertyGroup>
@@ -40,12 +39,12 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/goswinr/FsEx.Wpf</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/goswinr/FsEx.Wpf</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/goswinr/Fittings</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/goswinr/Fittings</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageIcon>logo128.png</PackageIcon>
     <PackageReadmeFile>READMEnuget.md</PackageReadmeFile> <!-- using  snupkg the readme does not pack https://github.com/NuGet/Home/issues/10791 -->
-    <PackageDescription>FsEx.Wpf is a collection of utilities for working with WPF in F#</PackageDescription>
+    <PackageDescription>Fittings is a collection of utilities for working with WPF in F#</PackageDescription>
     <PackageTags>WPF F#</PackageTags>
   </PropertyGroup>
 

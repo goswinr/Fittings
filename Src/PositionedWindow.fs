@@ -1,4 +1,4 @@
-﻿namespace FsEx.Wpf
+﻿namespace Fittings
 
 open System
 open System.Windows
@@ -6,12 +6,14 @@ open System.Windows
 
 /// A class holding a re-sizable Window that remembers its position even after restarting.
 /// The path in settingsFile will be used to persist the position of this window in a txt file.
-/// The ErrorLogger function will be called if the previous Window position could not restore.
-/// The window be positioned in the screen center with a size of 600 x 600.
+/// The errorLogger function will be called if persisting the window size does not work.
 type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as this = 
     inherit Windows.Window()
 
-    let settings = new PersistentSettings(settingsFile,errorLogger)
+    // The ErrorLogger function will be called if the previous Window position could not restore.
+    // The window be positioned in the screen center with a size of 600 x 600.
+
+    let settings = new PersistentSettings(settingsFile, errorLogger)
 
     /// the owning window
     let mutable owner = IntPtr.Zero
@@ -25,7 +27,7 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
         base.ResizeMode  <- ResizeMode.CanResize
 
         //-------------------------------------------------------------------------
-        // -  all below code is for load and safe window location and size ---
+        //----  all below code is for load and safe window location and size ------
         //-------------------------------------------------------------------------
 
         // (1) first restore normal size
@@ -55,15 +57,15 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
             isMinOrMax  <- true
 
         elif  winTop  < -offTolerance || winHeight + winTop  > maxH then
-            errorLogger "FsEx.Wpf.PositionedWindow:Could not restore previous Window position:"
-            errorLogger (sprintf "FsEx.Wpf.PositionedWindow: winTopPosition: %.1f  + winHeight: %.1f  = %.1f that is bigger than maxH: %.1f + %.1f tolerance" winTop winHeight   ( winHeight + winTop ) SystemParameters.VirtualScreenHeight offTolerance )
+            //errorLogger "Fittings.PositionedWindow:Could not restore previous Window position:"
+            //errorLogger (sprintf "Fittings.PositionedWindow: winTopPosition: %.1f  + winHeight: %.1f  = %.1f that is bigger than maxH: %.1f + %.1f tolerance" winTop winHeight   ( winHeight + winTop ) SystemParameters.VirtualScreenHeight offTolerance )
             base.WindowStartupLocation <- WindowStartupLocation.CenterScreen
             base.Height <- 600.0
             base.Width  <- 600.0
 
         elif winLeft < -offTolerance || winWidth  + winLeft > maxW then
-            errorLogger "FsEx.Wpf.PositionedWindow: Could not restore previous Window position:"
-            errorLogger <| sprintf "FsEx.Wpf.PositionedWindow: winLeftPosition: %.1f  + winWidth: %.1f = %.1f that is bigger than maxW: %.1f + %.1f tolerance" winLeft winWidth ( winWidth +  winLeft) SystemParameters.VirtualScreenWidth offTolerance
+            //errorLogger "Fittings.PositionedWindow: Could not restore previous Window position:"
+            //errorLogger <| sprintf "Fittings.PositionedWindow: winLeftPosition: %.1f  + winWidth: %.1f = %.1f that is bigger than maxW: %.1f + %.1f tolerance" winLeft winWidth ( winWidth +  winLeft) SystemParameters.VirtualScreenWidth offTolerance
             base.WindowStartupLocation <- WindowStartupLocation.CenterScreen
             base.Height <- 600.0
             base.Width  <- 600.0
@@ -107,8 +109,9 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
             |WindowState.Minimized ->
                 isMinOrMax  <- true
             |wch ->
-                eprintfn "FsEx.Wpf.PositionedWindow: unknown WindowState State change=%A" wch
-                isMinOrMax  <- true
+                // eprintfn "Fittings.PositionedWindow: unknown WindowState State change=%A" wch
+                // isMinOrMax  <- true
+                () // never happens
             )
 
         this.SizeChanged.Add (fun e -> // does no get trigger on maximizing
@@ -121,7 +124,7 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
     /// Create from application name only
     /// Settings will be saved in LocalApplicationData folder
     /// In a subfolder called 'applicationName'.
-    /// The file itself will be called 'FsEx.Wpf.PositionedWindow.Settings.txt'.
+    /// The file itself will be called 'Fittings.PositionedWindow.Settings.txt'.
     /// The ErrorLogger function will be called if the previous Window position could not restore.
     /// The window be positioned in the screen center with a size of 600 x 600.
     new (applicationName:string, errorLogger:string->unit) = 
@@ -132,7 +135,7 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
         let appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
         let p = IO.Path.Combine(appData,appName)
         IO.Directory.CreateDirectory(p) |> ignore
-        let f = IO.Path.Combine(p,"FsEx.Wpf.PositionedWindow.Settings.txt")
+        let f = IO.Path.Combine(p,"Fittings.PositionedWindow.Settings.txt")
         PositionedWindow(IO.FileInfo(f), errorLogger)
 
 

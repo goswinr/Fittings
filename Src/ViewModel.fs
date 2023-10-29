@@ -1,4 +1,4 @@
-﻿namespace FsEx.Wpf
+﻿namespace Fittings
 
 
 open System

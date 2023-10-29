@@ -3,13 +3,13 @@
 #r @"WindowsBase"
 //#r @"System.Xaml"
 //#r @"UIAutomationTypes"
-#r @"C:\GitHub\FsEx.Wpf\bin\Release\net472\FsEx.Wpf.dll"
+#r @"C:\GitHub\Fittings\bin\Release\net472\Fittings.dll"
 
 open System
 open System.Windows
 open System.Windows.Controls
 
-open FsEx.Wpf
+open Fittings
 
 let mutable win :Window = null
 

@@ -1,4 +1,4 @@
-﻿namespace FsEx.Wpf
+﻿namespace Fittings
 
 open System
 open System.Globalization
@@ -76,9 +76,10 @@ type PersistentSettings (settingsFile:IO.FileInfo, separator:char, errorLogger:s
     /// Delayed because the OnMaximize of window event triggers first location changed and then state changed,
     /// State change event should still be able to Get previous size and location that is not saved yet.
     /// Call Save() afterwards.
-    member this.SetDelayed (k, v , delay:int)= 
-        async{  do! Async.Sleep(delay)
-                settingsDict.[k] <- v
+    member this.SetDelayed (k, v, delay:int)= 
+        async{  
+            do! Async.Sleep(delay)
+            settingsDict.[k] <- v
         } |> Async.Start
 
     /// Add string value to the Concurrent settings Dictionary.
@@ -86,17 +87,15 @@ type PersistentSettings (settingsFile:IO.FileInfo, separator:char, errorLogger:s
     /// If they do it will be replaced by empty string. And a message will be written to errorLogger.
     /// Comments care not allowed.
     /// Call this.Save() afterwards to write to file async with a bit of delay.
-    member this.Set (key:string, value:string) :unit = 
+    member this.Set(key:string, value:string) :unit = 
         let mutable k = key
-        let mutable v = value
-        //let mutable ok = true
-        if k.IndexOf(sep)  > -1 then k<-k.Replace(string sep,"") (*; ok <- false *); errorLogger(sprintf "separator in key:%s" key)
-        if k.IndexOf('\r') > -1 then k<-k.Replace("\r"      ,"") (*; ok <- false *); errorLogger(sprintf "newline in key:%s" key)
-        if k.IndexOf('\n') > -1 then k<-k.Replace("\n"      ,"") (*; ok <- false *); errorLogger(sprintf "newline in key:%s" key)
-        if v.IndexOf('\r') > -1 then v<-v.Replace("\r"      ,"") (*; ok <- false *); errorLogger(sprintf "newline in value:%s" value)
-        if v.IndexOf('\n') > -1 then v<-v.Replace("\n"      ,"") (*; ok <- false *); errorLogger(sprintf "newline in value:%s" value)
-        settingsDict.[k] <- v
-        //ok
+        let mutable v = value        
+        if k.IndexOf(sep)  > -1 then k<-k.Replace(string sep," ") ; errorLogger(sprintf "separator in key:%s" key)
+        if k.IndexOf('\r') > -1 then k<-k.Replace("\r"      ," ") ; errorLogger(sprintf "newline in key:%s" key)
+        if k.IndexOf('\n') > -1 then k<-k.Replace("\n"      ," ") ; errorLogger(sprintf "newline in key:%s" key)
+        if v.IndexOf('\r') > -1 then v<-v.Replace("\r"      ," ") ; errorLogger(sprintf "newline in value:%s" value)
+        if v.IndexOf('\n') > -1 then v<-v.Replace("\n"      ," ") ; errorLogger(sprintf "newline in value:%s" value)
+        settingsDict.[k] <- v        
 
     /// Get String value from settings
     member this.Get k = get k
@@ -108,22 +107,22 @@ type PersistentSettings (settingsFile:IO.FileInfo, separator:char, errorLogger:s
 
     /// Using maximum digits of precision
     member this.SetFloatHighPrec (key, v:float) = 
-        this.Set (key ,v.ToString("R",CultureInfo.InvariantCulture)) // R is slower but nicer than G17 formatter. InvariantCulture to not mess up , and .
+        this.Set (key, v.ToString("R", CultureInfo.InvariantCulture)) // R is slower but nicer than G17 formatter. InvariantCulture to not mess up , and .
 
     /// Using just one digit after zero for precision
-    member this.SetFloat  (key,v:float) = 
-        this.Set (key,v.ToString("0.#",CultureInfo.InvariantCulture)) // InvariantCulture to not mess up , and .
+    member this.SetFloat (key,v:float) = 
+        this.Set (key, v.ToString("0.#", CultureInfo.InvariantCulture)) // InvariantCulture to not mess up , and .
 
     /// Save float to dict after a delay.
     /// Using just one digit after zero for precision.
     /// A delay is useful e.g. because the OnMaximize of window event triggers first Location changed and then state changed,
     /// State change event should still be able to Get previous size and location that is not saved yet.
-    member this.SetFloatDelayed (key ,v:float, delay) = 
-        this.SetDelayed (key ,v.ToString("0.#",CultureInfo.InvariantCulture), delay) // InvariantCulture to not mess up , and .
+    member this.SetFloatDelayed (key, v:float, delay) = 
+        this.SetDelayed (key, v.ToString("0.#",CultureInfo.InvariantCulture), delay) // InvariantCulture to not mess up , and .
 
-    member this.SetInt   (key ,v:int)  = this.Set (key ,string v)
+    member this.SetInt(key, v:int)  = this.Set(key, string v)
 
-    member this.SetBool  (key ,v:bool) = this.Set (key ,string v)
+    member this.SetBool(key, v:bool) = this.Set(key, string v)
 
     member this.GetFloat (key, def) = getFloat key def
                                     

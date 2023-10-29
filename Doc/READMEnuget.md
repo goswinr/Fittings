@@ -1,27 +1,25 @@
 
-# FsEx.Wpf
+# Fittings
 
-![code size](https://img.shields.io/github/languages/code-size/goswinr/FsEx.Wpf.svg) 
-[![license](https://img.shields.io/github/license/goswinr/FsEx.Wpf)](LICENSE)
+![code size](https://img.shields.io/github/languages/code-size/goswinr/Fittings.svg) 
+[![license](https://img.shields.io/github/license/goswinr/Fittings)](LICENSE)
 
-![Logo](https://raw.githubusercontent.com/goswinr/FsEx.Wpf/main/Doc/logo128.png)
+![Logo](https://raw.githubusercontent.com/goswinr/Fittings/main/Doc/logo128.png)
 
-FsEx.Wpf is a collection of utilities for working with WPF in F#. It has
+Fittings is a collection of utilities for working with WPF in F#. It has
 * A persistent Window class that will remember its size and position on screen after each change.
 * Utilities for synchronization, global error handling, Dependency Properties, Commands, and ViewModels
 * A class for loading and saving simple app settings async called `PersistentSettings`
 
-
-This Library carries the `FsEx` prefix, but has no dependency on https://github.com/goswinr/FsEx. 
-It only has the same author.
-
-It actually has zero dependencies. Apart form FSharp.Core (4.5+) that every F# library depends upon.
+It has zero dependencies. Apart form FSharp.Core (4.5+) that every F# library depends upon.
 
 ### License
 
-[MIT](https://raw.githubusercontent.com/goswinr/FsEx.Wpf/main/LICENSE.txt)
+[MIT](https://raw.githubusercontent.com/goswinr/Fittings/main/LICENSE.txt)
 
 ### Changelog
+`0.6.0`
+- Rename this library to Fittings from FsEx.Wpf
 
 `0.5.0`
 - trim whitespace on keys and values in  PersistentSettings
