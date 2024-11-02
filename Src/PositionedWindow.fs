@@ -7,7 +7,7 @@ open System.Windows
 /// A class holding a re-sizable Window that remembers its position even after restarting.
 /// The path in settingsFile will be used to persist the position of this window in a txt file.
 /// The errorLogger function will be called if persisting the window size does not work.
-type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as this = 
+type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as this =
     inherit Windows.Window()
 
     // The ErrorLogger function will be called if the previous Window position could not restore.
@@ -82,7 +82,7 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
                     if this.Top > -500. && this.Left > -500. then // to not save on minimizing on minimized: Top=-32000 Left=-32000
                         settings.SetFloatDelayed ("WindowTop"  ,this.Top  ,100) // get float in state change Maximized needs to access this before 350 ms pass
                         settings.SetFloatDelayed ("WindowLeft" ,this.Left ,100)
-                        settings.Save ()
+                        settings.SaveWithDelay ()
                 }
                 |> Async.StartImmediate
             )
@@ -97,13 +97,13 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
                 this.Width <-   settings.GetFloat ("WindowWidth"  , 800.0 )
                 settings.SetBool  ("WindowIsMax", false)  |> ignore
                 isMinOrMax <- false
-                settings.Save ()
+                settings.SaveWithDelay ()
 
             | WindowState.Maximized ->
                 // normally the state change event comes after the location change event but before size changed. async sleep in LocationChanged prevents this
                 isMinOrMax  <- true
                 settings.SetBool ("WindowIsMax", true) |> ignore
-                settings.Save  ()
+                settings.SaveWithDelay  ()
 
 
             |WindowState.Minimized ->
@@ -118,7 +118,7 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
             if this.WindowState = WindowState.Normal &&  not isMinOrMax  then
                 settings.SetFloatDelayed ("WindowHeight", this.Height, 100 )
                 settings.SetFloatDelayed ("WindowWidth" , this.Width , 100 )
-                settings.Save ()
+                settings.SaveWithDelay ()
             )
 
     /// Create from application name only
@@ -127,8 +127,8 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
     /// The file itself will be called 'Fittings.PositionedWindow.Settings.txt'.
     /// The ErrorLogger function will be called if the previous Window position could not restore.
     /// The window be positioned in the screen center with a size of 600 x 600.
-    new (applicationName:string, errorLogger:string->unit) = 
-        let appName = 
+    new (applicationName:string, errorLogger:string->unit) =
+        let appName =
            let mutable n = applicationName
            for c in IO.Path.GetInvalidFileNameChars() do  n <- n.Replace(c, '_')
            n
@@ -147,7 +147,7 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
     /// So that this window opens and closes at the same time as the main host window.
     member this.OwnerHandle
         with get () = owner
-        and set ptr = 
+        and set ptr =
             if ptr <> IntPtr.Zero then
                 owner <- ptr
                 Interop.WindowInteropHelper(this).Owner <- ptr

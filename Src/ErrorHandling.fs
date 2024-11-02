@@ -9,19 +9,19 @@ open System.ComponentModel
 
 
 /// A class to provide an Error Handler that can catch corrupted state or access violation errors from FSI threads too.
-type ProcessCorruptedState(applicationName:string, appendText:unit->string) = 
-    
+type ProcessCorruptedState(applicationName:string, appendText:unit->string) =
+
     let desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
 
-    let appName = 
+    let appName =
         let mutable n = applicationName
         for c in IO.Path.GetInvalidFileNameChars() do  n <- n.Replace(c, '_')
         n
 
     [< Security.SecurityCritical >]//to handle AccessViolationException too
-    [< Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions >] //https://stackoverflow.com/questions/3469368/how-to-handle-accessviolationexception/4759831 
+    [< Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions >] //https://stackoverflow.com/questions/3469368/how-to-handle-accessviolationexception/4759831
     //NET 6.0: This construct is deprecated. Recovery from corrupted process state exceptions is not supported; HandleProcessCorruptedStateExceptionsAttribute is ignored.
-    member this.Handler (sender:obj) (e: UnhandledExceptionEventArgs) :unit= 
+    member this.Handler (sender:obj) (e: UnhandledExceptionEventArgs) :unit=
             // Starting with the .NET Framework 4, this event is not raised for exceptions that corrupt the state of the process,
             // such as stack overflows or access violations, unless the event handler is security-critical and has the HandleProcessCorruptedStateExceptionsAttribute attribute.
             // https://docs.microsoft.com/en-us/dotnet/api/system.appdomain.unhandledexception?redirectedfrom=MSDN&view=netframework-4.8
@@ -37,7 +37,7 @@ type ProcessCorruptedState(applicationName:string, appendText:unit->string) =
             try IO.File.WriteAllText(file, err) with _ -> () // file might be open and locked
             eprintfn "%s" err
 
-    static member getWin32Errors() = 
+    static member getWin32Errors() =
         let lastError = Marshal.GetLastWin32Error() // https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/18d8fbe8-a967-4f1c-ae50-99ca8e491d2d
         if lastError <> 0 then
             "WIN32 LAST ERROR:\r\n-no win32 Errors-"
@@ -48,11 +48,11 @@ type ProcessCorruptedState(applicationName:string, appendText:unit->string) =
 
 
 /// To set up global AppDomain.CurrentDomain.UnhandledException.Handler.
-/// A class to provide an Error Handler that can catch corrupted state 
+/// A class to provide an Error Handler that can catch corrupted state
 /// or access violation errors from FSI threads too.
 /// (applicationName) for name to be displayed.
 /// (appendText:unit->string) to get additional text to add to the error message.
-type ErrorHandling(applicationName:string, appendText:unit->string)  = 
+type ErrorHandling(applicationName:string, appendText:unit->string)  =
 
     let maxThrowCount = 20
 
@@ -63,7 +63,7 @@ type ErrorHandling(applicationName:string, appendText:unit->string)  =
     /// (appendText:unit->string) to get additional text to add to the error message
     /// Exception get printed to the text writer at Console.SetError
     /// UnhandledException that cant be caught create a log file on the desktop
-    member this.Setup() : unit= 
+    member this.Setup() : unit=
         throwCount <- 0 // reset
         if not <| isNull Application.Current then // null if application is not yet created, or no application in hosted context
             Application.Current.DispatcherUnhandledException.Add(fun e ->
@@ -89,7 +89,7 @@ type ErrorHandling(applicationName:string, appendText:unit->string)  =
         //https://stackoverflow.com/questions/14711633/my-c-sharp-application-is-returning-0xe0434352-to-windows-task-scheduler-but-it
 
         AppDomain.CurrentDomain.UnhandledException.AddHandler( new UnhandledExceptionEventHandler( ProcessCorruptedState(applicationName,appendText).Handler))
-        
+
 
     // set up global AppDomain.CurrentDomain.UnhandledException.Handler
     // (applicationName) for name to be displayed

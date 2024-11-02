@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
-    <OutputType>Library</OutputType>    
-    <TargetFrameworks>net472;net6.0-windows</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <TargetFrameworks>net472;net7.0-windows</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <LangVersion>preview</LangVersion>
 
@@ -17,11 +17,12 @@
     <Product>Fittings</Product>
     <PackageId>Fittings</PackageId>
 
-    <Version>0.6.0</Version>
-    <AssemblyVersion>0.6.0</AssemblyVersion>
-    <FileVersion>0.6.0</FileVersion>
-    <PackageReleaseNotes>		
-		  - Rename this library to Fittings from FsEx.Wpf
+    <Version>0.7.0</Version>
+    <AssemblyVersion>0.7.0</AssemblyVersion>
+    <FileVersion>0.7.0</FileVersion>
+
+    <PackageReleaseNotes>
+		  - more saving in PersistentSettings
 	  </PackageReleaseNotes>
 
     <Authors>GoswinR</Authors>
@@ -43,22 +44,21 @@
     <RepositoryUrl>https://github.com/goswinr/Fittings</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageIcon>logo128.png</PackageIcon>
-    <PackageReadmeFile>READMEnuget.md</PackageReadmeFile> <!-- using  snupkg the readme does not pack https://github.com/NuGet/Home/issues/10791 -->
+    <PackageReadmeFile>README.md</PackageReadmeFile> <!-- using  snupkg the readme does not pack https://github.com/NuGet/Home/issues/10791 -->
     <PackageDescription>Fittings is a collection of utilities for working with WPF in F#</PackageDescription>
-    <PackageTags>WPF F#</PackageTags>
+    <PackageTags>wpf;fsharp</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="4.5.2" />
+    <PackageReference Update="FSharp.Core" Version="6.0.7" />
     <!-- otherwise the minimum FSharp.Core version would be forced by the SDK used for building it. this would be needlessly too high-->
-      
+
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
     <!-- https://docs.microsoft.com/en-us/nuget/consume-packages/package-references-in-project-files#controlling-dependency-assets -->
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="README.md" />
-    <None Include="Doc/READMEnuget.md" Pack="true" PackagePath="" />
+    <None Include="README.md" Pack="true" PackagePath="" />
     <None Include="Doc/logo128.png" Pack="true" PackagePath="" /> <!--PackagePath = "" makes the file available to nuget pack tool-->
 
     <Compile Include="Src/Sync.fs" />
@@ -74,7 +74,7 @@
     <Compile Include="Src/WindowOnNewThread.fs" />
 
 	 <None Include="Tests/test.fsx" />
-		  
+
   </ItemGroup>
 
 </Project>
