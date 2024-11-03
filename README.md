@@ -20,6 +20,9 @@ It has zero dependencies. Apart form FSharp.Core (6.0.7) that every F# library d
 [MIT](https://raw.githubusercontent.com/goswinr/Fittings/main/LICENSE.txt)
 
 ### Changelog
+`0.9.0`
+- Add TryGet.. methods on  `PersistentSettings`
+
 `0.7.0`
 - always save default value in `PersistentSettings` on Get(), if key missing
 - Setters in `PersistentSettings` always save the value (with the usual delay of 400 ms)

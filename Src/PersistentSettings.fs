@@ -48,18 +48,18 @@ type PersistentSettings (settingsFile:IO.FileInfo, separator:char, errorLogger:s
             sb.Append(k).Append(sep).AppendLine(v) |> ignore
         sb.ToString()
 
-    let get k =
+    let tryGet k =
          match settingsDict.TryGetValue k with
          |true, v  ->  Some v
          |false, _ ->  None
 
-    let pFloat(s:string) def = match Double.TryParse(s)  with (true, v) -> v |(false,_) -> def
-    let pInt  (s:string) def = match Int32.TryParse(s)   with (true, v) -> v |(false,_) -> def
-    let pBool (s:string) def = match Boolean.TryParse(s) with (true, v) -> v |(false,_) -> def
+    let pFloat(s:string) = match Double.TryParse(s)  with (true, v) -> Some v |(false,_) -> None
+    let pInt  (s:string) = match Int32.TryParse(s)   with (true, v) -> Some v |(false,_) -> None
+    let pBool (s:string) = match Boolean.TryParse(s) with (true, v) -> Some v |(false,_) -> None
 
-    let getFloat  key def = match get key with Some v -> pFloat v def  | None -> def
-    let getInt    key def = match get key with Some v -> pInt v def    | None -> def
-    let getBool   key def = match get key with Some v -> pBool v def   | None -> def
+    let getFloat key def  = tryGet key |> Option.bind pFloat |> Option.defaultValue def
+    let getInt key def    = tryGet key |> Option.bind pInt   |> Option.defaultValue def
+    let getBool key def   = tryGet key |> Option.bind pBool  |> Option.defaultValue def
 
 
     /// Create a class to save window size, layout and position, or any arbitrary string-string key value pairs.
@@ -80,6 +80,7 @@ type PersistentSettings (settingsFile:IO.FileInfo, separator:char, errorLogger:s
         async{
             do! Async.Sleep(delay)
             settingsDict.[k] <- v
+            this.SaveWithDelay()
         } |> Async.Start
 
     /// Add string value to the Concurrent settings Dictionary.
@@ -96,6 +97,7 @@ type PersistentSettings (settingsFile:IO.FileInfo, separator:char, errorLogger:s
         if v.IndexOf('\r') > -1 then v<-v.Replace("\r"      ," ") ; errorLogger(sprintf "newline in value:%s" value)
         if v.IndexOf('\n') > -1 then v<-v.Replace("\n"      ," ") ; errorLogger(sprintf "newline in value:%s" value)
         settingsDict.[k] <- v
+        this.SaveWithDelay()
 
 
     /// Write to Settings to  file in specified in constructor.
@@ -114,12 +116,11 @@ type PersistentSettings (settingsFile:IO.FileInfo, separator:char, errorLogger:s
     /// Using maximum digits of precision
     member this.SetFloatHighPrec (key, v:float) =
         this.Set (key, v.ToString("R", CultureInfo.InvariantCulture)) // R is slower but nicer than G17 formatter. InvariantCulture to not mess up , and .
-        this.SaveWithDelay()
+
 
     /// Using just one digit after zero for precision
     member this.SetFloat (key,v:float) =
         this.Set (key, v.ToString("0.#", CultureInfo.InvariantCulture)) // InvariantCulture to not mess up , and .
-        this.SaveWithDelay()
 
     /// Save float to dict after a delay.
     /// Using just one digit after zero for precision.
@@ -127,37 +128,37 @@ type PersistentSettings (settingsFile:IO.FileInfo, separator:char, errorLogger:s
     /// State change event should still be able to Get previous size and location that is not saved yet.
     member this.SetFloatDelayed (key, v:float, delay) =
         this.SetDelayed (key, v.ToString("0.#",CultureInfo.InvariantCulture), delay) // InvariantCulture to not mess up , and .
-        this.SaveWithDelay(delay + 300)
 
     member this.SetInt(key, v:int)  =
         this.Set(key, string v)
-        this.SaveWithDelay()
 
     member this.SetBool(key, v:bool) =
         this.Set(key, string v)
-        this.SaveWithDelay()
-
-
-    // member this.Get k = get k
-
-    // member this.GetFloat (key, def) = getFloat key def
-
-    // member this.GetInt   (key, def) = getInt   key def
-
-    // member this.GetBool  (key, def) = getBool  key def
 
 
     /// Also saves the default value to the settings if not found.
-    member this.GetFloat (key, def)  = match get key with Some v -> pFloat v def | None -> this.SetFloatHighPrec(key, def); this.SaveWithDelay(); def
+    member this.GetFloat (key:string, def:float)  = tryGet key |> Option.bind pFloat |> Option.defaultWith ( fun () -> this.SetFloat(key, def); this.SaveWithDelay(); def)
 
     /// Also saves the default value to the settings if not found.
-    member this.GetInt  (key, def)  = match get key with Some v -> pInt v def    | None -> this.SetInt(key, def)          ; this.SaveWithDelay(); def
+    member this.GetInt  (key:string, def:int)    = tryGet key |> Option.bind pInt    |> Option.defaultWith ( fun () -> this.SetInt(key, def); this.SaveWithDelay(); def)
 
     /// Also saves the default value to the settings if not found.
-    member this.GetBool (key, def)  = match get key with Some v -> pBool v def   | None -> this.SetBool(key, def)         ; this.SaveWithDelay(); def
+    member this.GetBool (key:string, def:bool)   = tryGet key |> Option.bind pBool   |> Option.defaultWith ( fun () -> this.SetBool(key, def); this.SaveWithDelay(); def)
 
     /// Also saves the default value to the settings if not found.
-    member this.Get     (key, def)  = match get key with Some v ->  v            | None -> this.Set(key, def)             ; this.SaveWithDelay(); def
+    member this.GetString (key:string, def:string) = tryGet key                      |> Option.defaultWith ( fun () -> this.Set(key, def); this.SaveWithDelay(); def)
+
+
+    member this.TryGetString (key) = tryGet key
+    member this.TryGetInt (key) = tryGet key |> Option.bind pInt
+    member this.TryGetFloat (key) = tryGet key |> Option.bind pFloat
+    member this.TryGetBool (key) = tryGet key |> Option.bind pBool
+
+
+
+
+    [<Obsolete("Use tryGetString instead, it saves too")>]
+    member this.Get (key) = tryGet key
 
     [<Obsolete("Use GetFloat instead, it saves too")>]
     member this.GetFloatSaveDefault (key,def) = this.GetFloat(key,def)
@@ -169,4 +170,6 @@ type PersistentSettings (settingsFile:IO.FileInfo, separator:char, errorLogger:s
     member this.GetBoolSaveDefault (key,def) = this.GetBool(key,def)
 
     [<Obsolete("Use Get instead, it saves too")>]
-    member this.GetSaveDefault (key,def) = this.Get(key,def)
+    member this.GetSaveDefault (key,def) = this.GetString(key,def)
+
+
