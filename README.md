@@ -20,7 +20,11 @@ It has zero dependencies. Apart form FSharp.Core (6.0.7) that every F# library d
 [MIT](https://raw.githubusercontent.com/goswinr/Fittings/main/LICENSE.txt)
 
 ### Changelog
-`0.9.0`
+
+`0.8.8`
+- upgrade to FSharp.Core 8.0.400 to make it work for Fesh.Revit
+
+`0.8.0`
 - Add TryGet.. methods on  `PersistentSettings`
 
 `0.7.0`
