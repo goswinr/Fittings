@@ -18,7 +18,7 @@ It has no dependencies. (Apart form FSharp.Core that every F# library depends up
 
 ### Full API Documentation
 
-[goswinr.github.io/Fittings](https://goswinr.github.io/Fittings/reference/Fittings.html)
+[goswinr.github.io/Fittings](https://goswinr.github.io/Fittings/reference/fittings.html)
 
 ### Download
 
