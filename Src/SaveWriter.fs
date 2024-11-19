@@ -29,8 +29,8 @@ module internal Help =
 
     let uniqueFilesEnsurer = HashSet<string>()
 
-
-type CreateFileResult = Created | ExitedAlready| Failed
+///  A Discriminated Union for the result of CreateFileIfMissing
+type CreateFileResult = Created | ExitedAlready | Failed
 
 /// Reads and Writes with Lock,
 /// Optionally only once after a delay in which it might be called several times
@@ -138,7 +138,7 @@ type SaveReadWriter (path:string, lockObj: obj,  errorLogger:string->unit) =
         async{
             let k = Interlocked.Increment counter
             do! Async.Sleep(delayMilliSeconds) // delay to see if this is the last of many events (otherwise there is a noticeable lag in dragging window around, for example, when saving window position)
-            if !counter = k then //k > 2L &&   //do not save on startup && only save last event after a delay if there are many save events in a row ( eg from window size change)(ignore first two event from creating window)
+            if counter.Value = k then //k > 2L &&   //do not save on startup && only save last event after a delay if there are many save events in a row ( eg from window size change)(ignore first two event from creating window)
                 try
                     let text = getText()
                     this.WriteAsync (text) // this should never fail since exceptions are caught inside

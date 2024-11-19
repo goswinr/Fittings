@@ -1,5 +1,5 @@
 <!-- in VS Code press Ctrl + Shift + V to see a preview-->
-![Logo](https://raw.githubusercontent.com/goswinr/Fittings/main/Doc/img/logo128.png)
+![Logo](https://raw.githubusercontent.com/goswinr/Fittings/main/Docs/img/logo128.png)
 
 # Fittings
 [![Fittings on nuget.org](https://img.shields.io/nuget/v/Fittings)](https://www.nuget.org/packages/Fittings/)

@@ -8,11 +8,11 @@ open System.Globalization
 open System.ComponentModel
 
 
+/// A module to provide a ViewModelBase class
+module ViewModel =
 
-module ViewModel = 
-
-    /// A base class for a viewmodel implementing INotifyPropertyChanged
-    type ViewModelBase() = 
+    /// A base class for a ViewModel implementing INotifyPropertyChanged
+    type ViewModelBase() =
         // alternative: http://www.fssnip.net/4Q/title/F-Quotations-with-INotifyPropertyChanged
         let ev = new Event<_, _>()
 
@@ -24,6 +24,6 @@ module ViewModel =
         /// member x.Val
         ///    with get()  = val
         ///    and set(v)  = val <- v; x.OnPropertyChanged(nameof x.Val)
-        member x.OnPropertyChanged(propertyName : string) = 
+        member x.OnPropertyChanged(propertyName : string) =
             ev.Trigger(x, new PropertyChangedEventArgs(propertyName))
 
