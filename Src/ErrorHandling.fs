@@ -21,7 +21,7 @@ type ProcessCorruptedState(applicationName:string, appendText:unit->string) =
     [< Security.SecurityCritical >]//to handle AccessViolationException too
     [< Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions >] //https://stackoverflow.com/questions/3469368/how-to-handle-accessviolationexception/4759831
     //NET 6.0: This construct is deprecated. Recovery from corrupted process state exceptions is not supported; HandleProcessCorruptedStateExceptionsAttribute is ignored.
-    member this.Handler (sender:obj) (e: UnhandledExceptionEventArgs) :unit=
+    member this.Handler (_sender:obj) (e: UnhandledExceptionEventArgs) :unit=
             // Starting with the .NET Framework 4, this event is not raised for exceptions that corrupt the state of the process,
             // such as stack overflows or access violations, unless the event handler is security-critical and has the HandleProcessCorruptedStateExceptionsAttribute attribute.
             // https://docs.microsoft.com/en-us/dotnet/api/system.appdomain.unhandledexception?redirectedfrom=MSDN&view=netframework-4.8

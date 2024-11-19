@@ -74,7 +74,7 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
         //http://mostlytech.blogspot.com/2008/01/maximizing-wpf-window-to-second-monitor.html
         this.Loaded.Add (fun _ -> if setMaxAfterLoading then this.WindowState <- WindowState.Maximized)
 
-        this.LocationChanged.Add(fun e -> // occurs for every pixel moved
+        this.LocationChanged.Add(fun _ -> // occurs for every pixel moved
             async{
                 // normally the state change event comes after the location change event but before size changed. async sleep in LocationChanged prevents this
                 do! Async.Sleep 200 // so that StateChanged event comes first
@@ -87,7 +87,7 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
                 |> Async.StartImmediate
             )
 
-        this.StateChanged.Add (fun e ->
+        this.StateChanged.Add (fun _ ->
             match this.WindowState with
             | WindowState.Normal ->
                 // because when Window is hosted in other App the restore from Maximized does not remember the previous position automatically
@@ -105,16 +105,16 @@ type PositionedWindow (settingsFile:IO.FileInfo, errorLogger:string->unit) as th
                 settings.SetBool ("WindowIsMax", true) |> ignore
                 settings.SaveWithDelay  ()
 
-
             |WindowState.Minimized ->
                 isMinOrMax  <- true
-            |wch ->
+
+            | _ ->
                 // eprintfn "Fittings.PositionedWindow: unknown WindowState State change=%A" wch
                 // isMinOrMax  <- true
                 () // never happens
             )
 
-        this.SizeChanged.Add (fun e -> // does no get trigger on maximizing
+        this.SizeChanged.Add (fun _ -> // does no get trigger on maximizing
             if this.WindowState = WindowState.Normal &&  not isMinOrMax  then
                 settings.SetFloatDelayed ("WindowHeight", this.Height, 100 )
                 settings.SetFloatDelayed ("WindowWidth" , this.Width , 100 )

@@ -44,7 +44,7 @@ type PersistentSettings (settingsFile:IO.FileInfo, separator:char, errorLogger:s
 
     let settingsAsString () =
         let sb = StringBuilder()
-        for KeyValue(k,v) in settingsDict |> Seq.sortBy (fun (KeyValue(k,v)) -> k) do // sorted for better debugging
+        for KeyValue(k,v) in settingsDict |> Seq.sortBy (fun (KeyValue(k,_)) -> k) do // sorted for better debugging
             sb.Append(k).Append(sep).AppendLine(v) |> ignore
         sb.ToString()
 
