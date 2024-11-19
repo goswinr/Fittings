@@ -2,9 +2,11 @@
 ![Logo](https://raw.githubusercontent.com/goswinr/Fittings/main/Doc/logo128.png)
 
 # Fittings
-[![Fittings on nuget.org](https://img.shields.io/nuget/v/Fittings.svg)](https://www.nuget.org/packages/Fittings/)
+[![Fittings on nuget.org](https://img.shields.io/nuget/v/Fittings)](https://www.nuget.org/packages/Fittings/)
+[![Build Status](https://github.com/goswinr/Fittings/actions/workflows/build.yml/badge.svg)](https://github.com/goswinr/Fittings/actions/workflows/build.yml)
+[![Docs Build Status](https://github.com/goswinr/Fittings/actions/workflows/docs.yml/badge.svg)](https://github.com/goswinr/Fittings/actions/workflows/docs.yml)
+[![license](https://img.shields.io/github/license/goswinr/Fittings)](LICENSE.md)
 ![code size](https://img.shields.io/github/languages/code-size/goswinr/Fittings.svg)
-[![license](https://img.shields.io/github/license/goswinr/Fittings)](LICENSE)
 
 
 Fittings is a collection of utilities for working with WPF in F#. It has
@@ -12,44 +14,23 @@ Fittings is a collection of utilities for working with WPF in F#. It has
 * Utilities for synchronization, global error handling, Dependency Properties, Commands, and ViewModels
 * A class for loading and saving simple app settings async called `PersistentSettings`
 
+It has no dependencies. (Apart form FSharp.Core that every F# library depends upon.)
 
-It has zero dependencies. Apart form FSharp.Core (6.0.7) that every F# library depends upon.
+### Full API Documentation
+
+[goswinr.github.io/Fittings](https://goswinr.github.io/Fittings/reference/Fittings.html)
+
+### Download
+
+Fittings is available as [NuGet package](https://www.nuget.org/packages/Fittings).
+
+### How to build
+
+Just run `dotnet build`
+
+### Changelog
+see [CHANGELOG.md](https://github.com/goswinr/Fittings/blob/main/CHANGELOG.md)
 
 ### License
 
-[MIT](https://raw.githubusercontent.com/goswinr/Fittings/main/LICENSE.txt)
-
-### Changelog
-
-`0.8.8`
-- upgrade to FSharp.Core 8.0.400 to make it work for Fesh.Revit
-
-`0.8.0`
-- Add TryGet.. methods on  `PersistentSettings`
-
-`0.7.0`
-- always save default value in `PersistentSettings` on Get(), if key missing
-- Setters in `PersistentSettings` always save the value (with the usual delay of 400 ms)
-
-`0.6.0`
-- Rename this library to Fittings from FsEx.Wpf
-
-`0.5.0`
-- trim whitespace on keys and values in  PersistentSettings
-- ignore empty lines in PersistentSettings
-
-`0.4.0`
-- rename Settings to PersistentSettings
-- add warning to SaveWriter if file is used twice
-
-`0.3.1`
-- rename ErrorHandeling to ErrorHandling
-- better documentation
-- fix float precision in Settings class
-
-`0.2.0`
-- more functionality on Settings serialization API
-
-`0.1.0`
-- first public release
-
+[MIT](https://github.com/goswinr/Fittings/blob/main/LICENSE.md)

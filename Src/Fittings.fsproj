@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFrameworks>net472;net7.0-windows</TargetFrameworks>
+    <UseWPF>true</UseWPF>
+    <LangVersion>preview</LangVersion>
+
+    <NeutralLanguage>en</NeutralLanguage>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>    <!--to only have the english resources-->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <RootNamespace>Fittings</RootNamespace>
+    <AssemblyName>Fittings</AssemblyName>
+    <AssemblyTitle>Fittings</AssemblyTitle>
+    <Title>Fittings</Title>
+    <Product>Fittings</Product>
+    <PackageId>Fittings</PackageId>
+
+    <!-- <Version>0.8.8</Version>  done by Ionide.KeepAChangelog.Tasks
+    <AssemblyVersion>0.8.8</AssemblyVersion>
+    <FileVersion>0.8.8</FileVersion>
+    <PackageReleaseNotes></PackageReleaseNotes> -->
+
+    <Authors>GoswinR</Authors>
+    <Copyright>Goswin Rothenthal 2021</Copyright>
+
+    <Description>Fittings is a collection of utilities for working with WPF in F#</Description>
+    <PackageDescription>Fittings is a collection of utilities for working with WPF in F#</PackageDescription>
+
+    <!-- <WarningLevel>5</WarningLevel> --> <!-- WarningLevel 3 is default , see https://github.com/dsyme/fsharp-presentations/blob/master/design-notes/off-by-default-warnings.md -->
+    <OtherFlags>$(OtherFlags)--warnon:3390</OtherFlags><!-- warnon:3390 is to verify xml docstrings https://devblogs.microsoft.com/dotnet/announcing-f-5/#improved-compiler-analysis-for-library-authors -->
+    <OtherFlags>$(OtherFlags) --warnon:1182</OtherFlags><!-- 1182: warn on unused variables -->
+    <Configuration>Release</Configuration>
+  </PropertyGroup>
+
+ <PropertyGroup>
+    <PackageTags>wpf;fsharp</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <!-- <SymbolPackageFormat>snupkg</SymbolPackageFormat>     -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageIcon>logo128.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <DebugType>embedded</DebugType>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <RepositoryUrl>https://github.com/goswinr/Fittings</RepositoryUrl>
+    <FsDocsLicenseLink>https://github.com/goswinr/Fittings/blob/main/LICENSE.md</FsDocsLicenseLink>
+    <FsDocsReleaseNotesLink>https://github.com/goswinr/Fittings/blob/main/CHANGELOG.md</FsDocsReleaseNotesLink>
+    <PackageProjectUrl>https://goswinr.github.io/Fittings</PackageProjectUrl>
+
+    <FsDocsFaviconSource>img/favicon.ico</FsDocsFaviconSource>   <!-- https://fsprojects.github.io/FSharp.Formatting/styling.html#Customizing-via-Styling-Parameters -->
+    <FsDocsWarnOnMissingDocs>true</FsDocsWarnOnMissingDocs>
+    <ChangelogFile>../CHANGELOG.md</ChangelogFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="8.0.400" />    <!-- needs to be aligned with Fesh.Revit -->
+    <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="" />
+    <None Include="../Doc/logo128.png" Pack="true" PackagePath="" /> <!--PackagePath = "" makes the file available to nuget pack tool-->
+
+    <Compile Include="Sync.fs" />
+    <Compile Include="TextBlockSelectable.fs" />
+    <Compile Include="SaveWriter.fs" />
+    <Compile Include="PersistentSettings.fs" />
+    <Compile Include="Command.fs" />
+    <Compile Include="ViewModel.fs" />
+    <Compile Include="DependencyProps.fs" />
+    <Compile Include="ErrorHandling.fs" />
+    <Compile Include="PositionedWindow.fs" />
+    <Compile Include="WindowOnNewThread.fs" />
+
+  </ItemGroup>
+
+</Project>
