@@ -12,5 +12,6 @@ updates:
   # see https://github.com/dependabot/dependabot-core/issues/10883
   - package-ecosystem: "nuget"
     directory: "/"
+
     schedule:
       interval: "daily"
