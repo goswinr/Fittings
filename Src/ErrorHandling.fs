@@ -8,8 +8,15 @@ open System.ComponentModel
 #nowarn "44" //This construct is deprecated. Recovery from corrupted process state exceptions is not supported; HandleProcessCorruptedStateExceptionsAttribute is ignored.
 
 
+
+
+/// <summary>
 /// A class to provide an Error Handler that can catch corrupted state or access violation errors from FSI threads too.
-type ProcessCorruptedState(applicationName:string, appendText:unit->string) =
+/// </summary>
+/// <param name="applicationName">The name of the application.</param>
+/// <param name="appendText">A function that returns a string to append.</param>
+/// <param name="writeErrorFile">A function that takes the error message and returns a boolean indicating whether the error file should be written onto the desktop.</param>
+type ProcessCorruptedState(applicationName:string, appendText:unit->string, writeErrorFile: string -> bool) =
 
     let desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
 
@@ -29,13 +36,26 @@ type ProcessCorruptedState(applicationName:string, appendText:unit->string) =
             // https://stackoverflow.com/questions/39956163/gracefully-handling-corrupted-state-exceptions
 
             let time = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss-fff")// to ensure unique file names
-            let filename = sprintf "%s-Fittings-UnhandledException-%s.txt" appName time
+            let filename = $"{appName}-UnhandledException-{time}.txt"
             let file = IO.Path.Combine(desktop,filename)
             let win32Err = ProcessCorruptedState.getWin32Errors()
-            let err = sprintf "%s:ProcessCorruptedState Special Handler: AppDomain.CurrentDomain.UnhandledException: \r\n isTerminating: %b : \r\n time: %s \r\n\r\n%A \r\n\r\n%s \r\n\r\n%s" applicationName e.IsTerminating time e.ExceptionObject (appendText()) win32Err
+            let exTxt = $"{e.ExceptionObject}"
+            let err =
+                [|
+                $"{applicationName}: AppDomain.CurrentDomain.UnhandledException:"
+                $" isTerminating: {e.IsTerminating}"
+                $" time: {time}"
+                ""
+                $"{exTxt}"
+                ""
+                $"{win32Err}"
+                ""
+                $"{appendText()}"
+                |]
+            if writeErrorFile exTxt then
+                try IO.File.WriteAllLines(file, err) with _ -> () // file might be open and locked
 
-            try IO.File.WriteAllText(file, err) with _ -> () // file might be open and locked
-            eprintfn "%s" err
+            eprintfn $"{String.concat Environment.NewLine err}"
 
     static member getWin32Errors() =
         let lastError = Marshal.GetLastWin32Error() // https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/18d8fbe8-a967-4f1c-ae50-99ca8e491d2d
@@ -43,22 +63,25 @@ type ProcessCorruptedState(applicationName:string, appendText:unit->string) =
             "WIN32 LAST ERROR:\r\n-no win32 Errors-"
         else
             let innerEx = new Win32Exception(lastError) //Win32 error codes are translated from their numeric representations into a system message
-            sprintf "WIN32 LAST ERROR:\r\nErrorCode %d: %s-" lastError innerEx.Message
+            $"WIN32 LAST ERROR:\r\nErrorCode {lastError}: {innerEx.Message}"
 
 
 
+/// <summary>
 /// To set up global AppDomain.CurrentDomain.UnhandledException.Handler.
 /// A class to provide an Error Handler that can catch corrupted state
 /// or access violation errors from FSI threads too.
-/// (applicationName) for name to be displayed.
-/// (appendText:unit->string) to get additional text to add to the error message.
-type ErrorHandling(applicationName:string, appendText:unit->string)  =
+/// </summary>
+/// <param name="applicationName">The name of the application to be displayed.</param>
+/// <param name="appendText">A function that returns additional text to add to the error message.</param>
+/// <param name="writeErrorFile">A function that takes the error message and returns a boolean indicating whether the error file should be written onto the desktop.</param>
+type ErrorHandling(applicationName:string, appendText:unit->string, writeErrorFile: string -> bool)  =
 
     let maxThrowCount = 20
 
     let mutable throwCount = 0
 
-    /// set up global AppDomain.CurrentDomain.UnhandledException.Handler
+    /// Sets up global AppDomain.CurrentDomain.UnhandledException.Handler
     /// (applicationName) for name to be displayed
     /// (appendText:unit->string) to get additional text to add to the error message
     /// Exception get printed to the text writer at Console.SetError
@@ -88,7 +111,7 @@ type ErrorHandling(applicationName:string, appendText:unit->string)  =
         //https://dzone.com/articles/order-chaos-handling-unhandled
         //https://stackoverflow.com/questions/14711633/my-c-sharp-application-is-returning-0xe0434352-to-windows-task-scheduler-but-it
 
-        AppDomain.CurrentDomain.UnhandledException.AddHandler( new UnhandledExceptionEventHandler( ProcessCorruptedState(applicationName,appendText).Handler))
+        AppDomain.CurrentDomain.UnhandledException.AddHandler( new UnhandledExceptionEventHandler( ProcessCorruptedState(applicationName, appendText, writeErrorFile).Handler))
 
 
     // set up global AppDomain.CurrentDomain.UnhandledException.Handler

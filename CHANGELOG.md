@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 205-02-14
+### Changed
+- Add argument to ErrorHandling to skip writing to a file on the desktop.
+- don't use dependabot for nuget packages
+- FSharp.Core 6.0.7
+
 ## [0.9.0] - 2024-11-19
 ### Added
 - Documentation via [FSharp.Formatting](https://fsprojects.github.io/FSharp.Formatting/)
