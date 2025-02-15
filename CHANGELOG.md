@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.10.0] - 205-02-14
 ### Changed
 - Add argument to ErrorHandling to skip writing to a file on the desktop.
-- don't use dependabot for nuget packages
+- use 'dotnet outdated tool' instead of dependabot for nuget package updates
 - FSharp.Core 6.0.7
 
 ## [0.9.0] - 2024-11-19
@@ -62,7 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - First public release
 
 
-[Unreleased]: https://github.com/goswinr/Fittings/compare/0.9.0...HEAD
+[Unreleased]: https://github.com/goswinr/Fittings/compare/0.10.0...HEAD
+[0.10.0]: https://github.com/goswinr/Fittings/compare/0.9.0...0.10.0
 [0.9.0]: https://github.com/goswinr/Fittings/compare/0.8.8...0.9.0
 [0.8.8]: https://github.com/goswinr/Fittings/compare/0.8.0...0.8.8
 [0.8.0]: https://github.com/goswinr/Fittings/compare/0.7.0...0.8.0

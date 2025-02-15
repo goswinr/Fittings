@@ -5,6 +5,8 @@
 [![Fittings on nuget.org](https://img.shields.io/nuget/v/Fittings)](https://www.nuget.org/packages/Fittings/)
 [![Build Status](https://github.com/goswinr/Fittings/actions/workflows/build.yml/badge.svg)](https://github.com/goswinr/Fittings/actions/workflows/build.yml)
 [![Docs Build Status](https://github.com/goswinr/Fittings/actions/workflows/docs.yml/badge.svg)](https://github.com/goswinr/Fittings/actions/workflows/docs.yml)
+[![Check NuGet](https://github.com/goswinr/Fittings/actions/workflows/outdatedNuget.yml/badge.svg)](https://github.com/goswinr/Fittings/actions/workflows/outdatedNuget.yml)
+[![Check dotnet tools](https://github.com/goswinr/Fittings/actions/workflows/outdatedDotnetTool.yml/badge.svg)](https://github.com/goswinr/Fittings/actions/workflows/outdatedDotnetTool.yml)
 [![license](https://img.shields.io/github/license/goswinr/Fittings)](LICENSE.md)
 ![code size](https://img.shields.io/github/languages/code-size/goswinr/Fittings.svg)
 

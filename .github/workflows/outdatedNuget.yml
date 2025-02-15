@@ -1,5 +1,4 @@
-name: Daily nuget check with dotnet outdated tool
-
+name: Daily nuget outdated check
 # In the Github UI this workflow need: Settings -> Actions -> General -> Workflow Permissions:
 #  'Read and write permissions'  and
 #  'Allow Github Actions to create and approve pull requests'
@@ -19,7 +18,6 @@ on:
     # - cron: '*/6 * * * *' # Runs every 6 minutes for testing
 
   # push: cannot trigger a pull request , see https://github.com/peter-evans/create-pull-request/tree/v7/?tab=readme-ov-file#token
-
 
 permissions: # https://github.com/peter-evans/create-pull-request/tree/v7/?tab=readme-ov-file#token
   contents: write
@@ -45,49 +43,68 @@ jobs:
       run: dotnet tool install -g dotnet-outdated-tool
 
     - name: Simulate Update NuGet packages to get JSON output
-      run: dotnet outdated --output outdated.json --exclude FSharp.Core
+      run: dotnet outdated --output outdated.json
 
     - name: Parse JSON and concatenate unique versions
       shell: pwsh
       run: |
-        $json = Get-Content 'outdated.json' | ConvertFrom-Json
-        $uniqueDeps = @{}        
-        foreach ($project in $json.Projects) {
-          foreach ($framework in $project.TargetFrameworks) {
-            foreach ($dep in $framework.Dependencies) {
-              if (-not $uniqueDeps.ContainsKey($dep.Name)) {
-                $uniqueDeps[$dep.Name] = "$($dep.Name) to $($dep.LatestVersion) (from $($dep.ResolvedVersion))"
-              }}}}        
-        $result = $uniqueDeps.Values
-        $concatenated = "Bump " + ($result -join '; ')
-        echo "DEPS_UPGRADE=$concatenated" >> $env:GITHUB_ENV
-        Remove-Item -Path outdated.json -Force
+        if (Test-Path 'outdated.json') {
+          $json = Get-Content 'outdated.json' | ConvertFrom-Json
+          $uniqueDeps = @{}
+          foreach ($project in $json.Projects) {
+            foreach ($framework in $project.TargetFrameworks) {
+              foreach ($dep in $framework.Dependencies) {
+          if (-not $uniqueDeps.ContainsKey($dep.Name)) {
+            $uniqueDeps[$dep.Name] = "$($dep.Name) to $($dep.LatestVersion) (from $($dep.ResolvedVersion))"
+          }
+              }
+            }
+          }
+          $result = $uniqueDeps.Values
+          $concatenated = "Bump " + ($result -join '; ')
+          echo "COMMIT_MSG=$concatenated" >> $env:GITHUB_ENV
+          Remove-Item -Path outdated.json -Force
+        }
+        else {
+          echo 'No outdated.json file found'
+          echo "COMMIT_MSG=" >> $env:GITHUB_ENV
+        }
 
     - name: Update NuGet packages and get Markdown output
-      run: dotnet outdated --upgrade --output outdated.md --output-format Markdown --exclude FSharp.Core
+      # if no updates are available, no output.json file is created
+      if: ${{env.COMMIT_MSG }}
+      run: dotnet outdated --upgrade --output outdated.md --output-format Markdown
 
     - name: Read outdated.md file
+      if: ${{env.COMMIT_MSG }}
       id: read-md
       uses: juliangruber/read-file-action@v1
       with:
         path: ./outdated.md
 
     - name: Delete outdated.md file
+      if: ${{env.COMMIT_MSG }}
       shell: pwsh
       run: Remove-Item -Path outdated.md -Force
 
     # This will not create a duplicate PR if one exists already
     - name: Create Pull Request
+      if: ${{env.COMMIT_MSG }}
       uses: peter-evans/create-pull-request@v7
       with:
-        commit-message: ${{ env.DEPS_UPGRADE }}
+        commit-message: ${{ env.COMMIT_MSG }}
         committer: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
         author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
         branch: dotnet-outdated-bot
         delete-branch: true
-        title: ${{ env.DEPS_UPGRADE }}
+        title: ${{ env.COMMIT_MSG }}
         body: ${{ steps.read-md.outputs.content }}
         labels: "dotnet-outdated"
+
+
+
+
+
 
 
 
