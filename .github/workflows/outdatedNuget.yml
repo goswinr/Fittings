@@ -1,4 +1,4 @@
-name: Daily nuget outdated check
+name: Check NuGet  # this name shows in Readme badge
 # In the Github UI this workflow need: Settings -> Actions -> General -> Workflow Permissions:
 #  'Read and write permissions'  and
 #  'Allow Github Actions to create and approve pull requests'

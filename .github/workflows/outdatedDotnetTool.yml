@@ -1,4 +1,4 @@
-name: Daily dotnet tool update checks
+name: Check dotnet tools  # this name shows in Readme badge
 # In the Github UI this workflow need: Settings -> Actions -> General -> Workflow Permissions:
 #  'Read and write permissions'  and
 #  'Allow Github Actions to create and approve pull requests'
