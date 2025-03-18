@@ -18,6 +18,9 @@ Fittings is a collection of utilities for working with WPF in F#. It has
 
 It has no dependencies. (Apart form FSharp.Core that every F# library depends upon.)
 
+> [!CAUTION]
+> When used from C# add a refrence to FSharp.Core 6.0.7 or higher.
+
 ### Full API Documentation
 
 [goswinr.github.io/Fittings](https://goswinr.github.io/Fittings/reference/fittings.html)

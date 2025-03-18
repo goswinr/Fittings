@@ -9,7 +9,9 @@
     <NeutralLanguage>en</NeutralLanguage>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>    <!--to only have the english resources-->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference> <!--see .github/dependabot.yml -->
+    <!-- This is to exclude the FSharp.Core reference fromn the nuget package,
+    for using Fittings in Fesh.Rrevit it would have to match excatlt the one from Fesh -->
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
 
     <RootNamespace>Fittings</RootNamespace>
     <AssemblyName>Fittings</AssemblyName>

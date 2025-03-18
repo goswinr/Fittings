@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add argument to ErrorHandling to skip writing to a file on the desktop.
 - use 'dotnet outdated tool' instead of dependabot for nuget package updates
-- FSharp.Core 6.0.7
+- removed explicit FSharp.Core 6.0.7 refrence
 
 ## [0.9.0] - 2024-11-19
 ### Added
