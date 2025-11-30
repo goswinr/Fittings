@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.10.0] - 205-02-14
+## [0.10.0] - 2025-02-14
 ### Changed
 - Add argument to ErrorHandling to skip writing to a file on the desktop.
 - use 'dotnet outdated tool' instead of dependabot for nuget package updates
-- removed explicit FSharp.Core 6.0.7 refrence
+- removed explicit FSharp.Core 6.0.7 reference
 
 ## [0.9.0] - 2024-11-19
 ### Added
@@ -75,8 +75,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.2.0]: https://github.com/goswinr/Fittings/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/goswinr/Fittings/releases/tag/0.1.0
 
-<!--
-use to get tag dates:
-git log --tags --simplify-by-decoration --pretty="format:%ci %d"
 
--->
