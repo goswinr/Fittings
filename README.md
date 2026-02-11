@@ -5,8 +5,6 @@
 [![Fittings on nuget.org](https://img.shields.io/nuget/v/Fittings)](https://www.nuget.org/packages/Fittings/)
 [![Build Status](https://github.com/goswinr/Fittings/actions/workflows/build.yml/badge.svg)](https://github.com/goswinr/Fittings/actions/workflows/build.yml)
 [![Docs Build Status](https://github.com/goswinr/Fittings/actions/workflows/docs.yml/badge.svg)](https://github.com/goswinr/Fittings/actions/workflows/docs.yml)
-[![Check NuGet](https://github.com/goswinr/Fittings/actions/workflows/outdatedNuget.yml/badge.svg)](https://github.com/goswinr/Fittings/actions/workflows/outdatedNuget.yml)
-[![Check dotnet tools](https://github.com/goswinr/Fittings/actions/workflows/outdatedDotnetTool.yml/badge.svg)](https://github.com/goswinr/Fittings/actions/workflows/outdatedDotnetTool.yml)
 [![license](https://img.shields.io/github/license/goswinr/Fittings)](LICENSE.md)
 ![code size](https://img.shields.io/github/languages/code-size/goswinr/Fittings.svg)
 
@@ -16,12 +14,12 @@ Fittings is a collection of utilities for working with WPF in F#. It has
 * Utilities for synchronization, global error handling, Dependency Properties, Commands, and ViewModels
 * A class for loading and saving simple app settings async called `PersistentSettings`
 
-It has no dependencies. (Apart form FSharp.Core that every F# library depends upon.)
+It has no dependencies. (Apart from FSharp.Core that every F# library depends upon.)
 
 > [!CAUTION]
-> When used from C# add a refrence to FSharp.Core 6.0.7 or higher.
+> When used from C# add a reference to FSharp.Core 6.0.7 or higher.
 
-### Full API Documentation
+## Full API Documentation
 
 [goswinr.github.io/Fittings](https://goswinr.github.io/Fittings/reference/fittings.html)
 
