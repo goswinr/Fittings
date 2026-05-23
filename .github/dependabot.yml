@@ -5,5 +5,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
 
 # don't do nuget here, WPF does not build correctly on linux
