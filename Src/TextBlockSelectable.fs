@@ -4,15 +4,16 @@ open System
 open System.Windows
 open System.Windows.Controls
 open System.Reflection
+open System.ComponentModel
 
 /// Provides a type called TextBlockSelectable.
 /// A Textblock with selectable text.
-[<AutoOpen>]
-module TextBlockAutoOpen = 
+[<AutoOpen; EditorBrowsable(EditorBrowsableState.Never)>]
+module TextBlockAutoOpen =
     // adapted from https://stackoverflow.com/a/45627524/969070
 
     /// Utility to make a Textblock with selectable text
-    type internal TextEditorWrapper(textContainer : obj, uiScope : FrameworkElement, isUndoEnabled : bool) = 
+    type internal TextEditorWrapper(textContainer : obj, uiScope : FrameworkElement, isUndoEnabled : bool) =
 
         static let flagsI = BindingFlags.Instance ||| BindingFlags.NonPublic
         static let flagsS = BindingFlags.Static   ||| BindingFlags.NonPublic
@@ -33,24 +34,24 @@ module TextBlockAutoOpen =
 
         static member TextEditorType = textEditorType
 
-        static member RegisterCommandHandlers(controlType : Type, acceptsRichContent : bool, readOnly : bool, registerEventListeners : bool) = 
+        static member RegisterCommandHandlers(controlType : Type, acceptsRichContent : bool, readOnly : bool, registerEventListeners : bool) =
             registerMethod.Invoke (null, [|(controlType :> obj); (acceptsRichContent :> obj); (readOnly :> obj); (registerEventListeners :> obj)|])
 
-        static member CreateFor(tb : TextBlock) = 
+        static member CreateFor(tb : TextBlock) =
             let mutable textContainer = textContainerProp.GetValue (tb)
             let mutable editorWr = new TextEditorWrapper(textContainer, tb, false)
             isReadOnlyProp.SetValue (editorWr.Editor, true)
             textViewProp.SetValue (editorWr.Editor, (textContainerTextViewProp.GetValue (textContainer)))
             editorWr
 
-        member val Editor:obj = 
+        member val Editor:obj =
             let flagsC = BindingFlags.Instance ||| BindingFlags.NonPublic ||| BindingFlags.CreateInstance
             Activator.CreateInstance (TextEditorWrapper.TextEditorType, flagsC, null, [|textContainer; (uiScope :> obj); (isUndoEnabled :> obj)|], null)
 
     /// Textblock with selectable text.
     /// Fails to serialize and on Hyperlinks as last run and on TextTrimming="CharacterEllipsis".
     /// see https://stackoverflow.com/a/45627524/969070
-    type TextBlockSelectable() as this= 
+    type TextBlockSelectable() as this=
         inherit TextBlock()
         let _editor = TextEditorWrapper.CreateFor(this)
 
