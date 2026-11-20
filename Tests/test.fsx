@@ -3,7 +3,7 @@
 #r @"WindowsBase"
 //#r @"System.Xaml"
 //#r @"UIAutomationTypes"
-#r @"C:\GitHub\Fittings\bin\Release\net472\Fittings.dll"
+#r @"C:\GitHub\Fittings\bin\Release\net48\Fittings.dll"
 
 open System
 open System.Windows
