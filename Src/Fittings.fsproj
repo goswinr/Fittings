@@ -9,8 +9,8 @@
     <NeutralLanguage>en</NeutralLanguage>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>    <!--to only have the english resources-->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <!-- This is to exclude the FSharp.Core reference fromn the nuget package,
-    for using Fittings in Fesh.Rrevit it would have to match excatlt the one from Fesh -->
+    <!-- No implicit FSharp.Core reference, the explicit one below compiles against an old FSharp.Core
+    and keeps it out of the nuget dependencies, so the host (e.g. Fesh.Revit) decides the FSharp.Core version -->
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
 
     <RootNamespace>Fittings</RootNamespace>
@@ -58,6 +58,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Compile against FSharp.Core 6.0.7 so that Fittings works with FSharp.Core 6.0.7 and any newer one.
+    'Include' is needed, an 'Update' does nothing because of DisableImplicitFSharpCoreReference, then the compiler would use the FSharp.Core bundled with the .NET SDK.
+    PrivateAssets="all" keeps it out of the nuget package dependencies, so the host (e.g. Fesh.Revit) decides the FSharp.Core version. -->
     <PackageReference Include="FSharp.Core" Version="6.0.7" PrivateAssets="all" />
     <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.3.3" PrivateAssets="all" />
     <!-- SourceLink is built into the .NET 8+ SDK, no Microsoft.SourceLink.GitHub package needed -->

@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Target net48 instead of net472
-- Compile against FSharp.Core 6.0.7 explicitly (PrivateAssets, so still no FSharp.Core dependency in the NuGet package), fixes build with .NET SDK 11
+- Compile against FSharp.Core 6.0.7 (0.10.0 was accidentally compiled against FSharp.Core 9.0), so it works with FSharp.Core 6.0.7 and newer. FSharp.Core is still not a package dependency
 
 ## [0.10.0] - 2025-02-14
 ### Changed
